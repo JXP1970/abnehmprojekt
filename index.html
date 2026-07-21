@@ -140,6 +140,36 @@ tr.del td{color:var(--ink-2)}
 .warn{border-left:3px solid var(--signal);background:#FDF3EC;padding:10px 12px;
   font-size:13px;border-radius:0 var(--r) var(--r) 0;margin-top:10px}
 .foot{font-size:12px;color:var(--ink-2);text-align:center;padding:0 20px 30px;max-width:600px;margin:0 auto}
+
+/* ---------- Rezepte (aufklappbar) ---------- */
+details.rz{border:1px solid var(--rule);border-radius:var(--r);margin-bottom:8px;background:var(--paper-2)}
+details.rz>summary{cursor:pointer;padding:10px 12px;list-style:none;display:flex;justify-content:space-between;
+  align-items:baseline;gap:10px}
+details.rz>summary::-webkit-details-marker{display:none}
+details.rz>summary .rzn{font-weight:600}
+details.rz>summary .rzm{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-2);white-space:nowrap}
+details.rz>summary::after{content:'+';color:var(--signal);font-family:"IBM Plex Mono",monospace;font-size:16px;margin-left:2px}
+details.rz[open]>summary::after{content:'–'}
+details.rz[open]>summary{border-bottom:1px solid var(--rule)}
+.rzbody{padding:10px 12px 12px;font-size:14px}
+.rzbody h4{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:400;margin:0 0 5px}
+.rzbody ul,.rzbody ol{margin:0 0 10px;padding-left:18px}
+.rzbody li{margin-bottom:3px}
+
+/* ---------- Ampel ---------- */
+.ampel{display:grid;gap:10px}
+.ampel .zeile{border:1px solid var(--rule);border-radius:var(--r);padding:10px 12px;border-left-width:4px}
+.ampel .zeile.gruen{border-left-color:var(--pruef)}
+.ampel .zeile.gelb{border-left-color:#C9960A}
+.ampel .zeile.rot{border-left-color:var(--signal)}
+.ampel .zeile>b{display:block;font-family:"Oswald",sans-serif;text-transform:uppercase;letter-spacing:.04em;
+  font-size:14px;margin-bottom:4px}
+.ampel .zeile.gruen>b{color:var(--pruef)}
+.ampel .zeile.gelb>b{color:#B4870A}
+.ampel .zeile.rot>b{color:var(--signal)}
+.ampel .zeile .txt{font-size:14px}
+.ampel .zeile .txt b{color:var(--ink)}
 svg text{font-family:"IBM Plex Mono",monospace}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -245,11 +275,35 @@ svg text{font-family:"IBM Plex Mono",monospace}
   <div class="card">
     <h2>Tagesziel <span class="nr">08 · Sollwerte</span></h2>
     <div class="kpis" id="mkpis"></div>
-    <p class="hint" style="margin:10px 0 0">Eiweiß ist die harte Vorgabe, Fett die Untergrenze, Kohlenhydrate füllen den Rest auf.</p>
+    <p class="hint" style="margin:10px 0 0">Keine Sorge, wenn dir das zu viele Zahlen sind: Halte dich einfach an die Ampel und das Wochenmenü darunter – dann passt es von allein. Faustregel: <b>zu jeder Mahlzeit zuerst eine Eiweißquelle</b>, dazu Gemüse, dann die Beilage.</p>
   </div>
 
   <div class="card">
-    <h2>Tagebuch <span class="nr">09 · Verbrauchsnachweis</span></h2>
+    <h2>Was darf ich essen <span class="nr">09 · Warenkunde</span></h2>
+    <div id="ampel"></div>
+  </div>
+
+  <div class="card">
+    <h2>7-Tage-Essensplan <span class="nr">10 · Wochenmenü</span></h2>
+    <p class="hint" style="margin:0 0 10px">Ein kompletter Plan für die Woche. Du musst nichts rechnen – einfach nachkochen. Die Rezepte mit Anleitung stehen in der Karte darunter. Wiederholt sich bewusst, damit der Einkauf einfach bleibt.</p>
+    <div id="weekmenu"></div>
+  </div>
+
+  <div class="card">
+    <h2>Rezepte <span class="nr">11 · Bauanleitung</span></h2>
+    <p class="hint" style="margin:0 0 10px">Tippe ein Rezept an, um Zutaten und Zubereitung zu sehen. Alle Mengen für <b>eine Portion</b>.</p>
+    <div id="recipes"></div>
+  </div>
+
+  <div class="card">
+    <h2>Einkaufsliste <span class="nr">12 · Materialbedarf</span></h2>
+    <p class="hint" style="margin:0 0 10px">Alles für den 7-Tage-Plan oben, für eine Person. Nach Regalen sortiert.</p>
+    <div id="shop"></div>
+  </div>
+
+  <div class="card">
+    <h2>Tagebuch <span class="nr">13 · Verbrauchsnachweis</span></h2>
+    <p class="hint" style="margin:0 0 10px">Optional. Wenn du dem Wochenmenü folgst, musst du hier nichts eintragen – es ist nur da, falls du mal etwas anderes isst und mitzählen willst.</p>
     <div class="row" style="margin-bottom:10px">
       <div style="flex:2"><label for="e-food">Lebensmittel</label>
         <input id="e-food" list="foods" placeholder="z. B. Magerquark" autocomplete="off">
@@ -265,68 +319,58 @@ svg text{font-family:"IBM Plex Mono",monospace}
     <div id="elist"></div>
     <div class="kpis" style="margin-top:12px" id="ekpis"></div>
   </div>
-
-  <div class="card">
-    <h2>Beispieltag <span class="nr">10 · Regelausführung</span></h2>
-    <div id="mealplan"></div>
-  </div>
-
-  <div class="card">
-    <h2>Einkaufsliste <span class="nr">11 · Materialbedarf</span></h2>
-    <div id="shop"></div>
-  </div>
 </section>
 
 <!-- ================= SPORT ================= -->
 <section id="sport" hidden>
   <div class="card">
-    <h2>Wochenprogramm <span class="nr">12 · Bauablauf</span></h2>
+    <h2>Wochenprogramm <span class="nr">14 · Bauablauf</span></h2>
     <p class="hint" style="margin:0 0 12px">Zwei Krafteinheiten am Multifunktionsgerät (Seilzug/Butterfly), zwei bis drei Ausdauereinheiten über Rudergerät, Cross-Laufgerät, Nordic Walking, Boxsack oder Sprungseil. Alles komplett zuhause bzw. vor der Tür.</p>
     <div id="plan-sport"></div>
   </div>
 
   <div class="card">
-    <h2>Kraft A · Ganzkörper <span class="nr">13</span></h2>
+    <h2>Kraft A · Ganzkörper <span class="nr">15</span></h2>
     <div id="ka"></div>
   </div>
 
   <div class="card">
-    <h2>Kraft B · Ganzkörper <span class="nr">14</span></h2>
+    <h2>Kraft B · Ganzkörper <span class="nr">16</span></h2>
     <div id="kb"></div>
   </div>
 
   <div class="card">
-    <h2>Ausdauer <span class="nr">15</span></h2>
+    <h2>Ausdauer <span class="nr">17</span></h2>
     <div id="aus"></div>
   </div>
 
   <div class="card">
-    <h2>Boxsack · Runden <span class="nr">16 · Schlagplan</span></h2>
+    <h2>Boxsack · Runden <span class="nr">18 · Schlagplan</span></h2>
     <div id="box"></div>
   </div>
 
   <div class="card">
-    <h2>Sprungseil · Intervalle <span class="nr">17 · Taktschlag</span></h2>
+    <h2>Sprungseil · Intervalle <span class="nr">19 · Taktschlag</span></h2>
     <div id="seil"></div>
   </div>
 
   <div class="card">
-    <h2>Rudergerät · Intervalle <span class="nr">18 · Schlagzahl</span></h2>
+    <h2>Rudergerät · Intervalle <span class="nr">20 · Schlagzahl</span></h2>
     <div id="ruder"></div>
   </div>
 
   <div class="card">
-    <h2>Cross-Laufgerät · Intervalle <span class="nr">19 · Vortrieb</span></h2>
+    <h2>Cross-Laufgerät · Intervalle <span class="nr">21 · Vortrieb</span></h2>
     <div id="cross"></div>
   </div>
 
   <div class="card">
-    <h2>Nordic Walking · Touren <span class="nr">20 · Streckenplan</span></h2>
+    <h2>Nordic Walking · Touren <span class="nr">22 · Streckenplan</span></h2>
     <div id="nordic"></div>
   </div>
 
   <div class="card">
-    <h2>Einheit abhaken <span class="nr">21 · Bautagebuch</span></h2>
+    <h2>Einheit abhaken <span class="nr">23 · Bautagebuch</span></h2>
     <div class="row">
       <div><label for="s-date">Datum</label><input id="s-date" type="date"></div>
       <div><label for="s-typ">Einheit</label>
@@ -345,15 +389,15 @@ svg text{font-family:"IBM Plex Mono",monospace}
 <!-- ================= WOCHE ================= -->
 <section id="woche" hidden>
   <div class="card">
-    <h2>Wochen-Abnahme <span class="nr">22 · Prüfung</span></h2>
+    <h2>Wochen-Abnahme <span class="nr">24 · Prüfung</span></h2>
     <div id="weekly"></div>
   </div>
   <div class="card">
-    <h2>Wenn es klemmt <span class="nr">23 · Mängelbehebung</span></h2>
+    <h2>Wenn es klemmt <span class="nr">25 · Mängelbehebung</span></h2>
     <div id="trouble"></div>
   </div>
   <div class="card">
-    <h2>Daten <span class="nr">24 · Archiv</span></h2>
+    <h2>Daten <span class="nr">26 · Archiv</span></h2>
     <div class="row">
       <div class="fix"><button class="act ghost" id="exp">Export (JSON)</button></div>
       <div class="fix"><button class="act ghost" id="res">Alles zurücksetzen</button></div>
@@ -590,30 +634,95 @@ function renderEssen(){
   ].join('');
 }
 
-function renderMealplan(){
-  const c=calc();
-  const skala = c? c.ziel/1900 : 1;
-  const m=(t,items,kcal)=>`<div style="padding:10px 0;border-bottom:1px solid var(--grid)">
-    <div style="display:flex;justify-content:space-between;align-items:baseline">
-      <b class="disp" style="font-size:15px;text-transform:uppercase">${t}</b>
-      <span class="mono" style="font-size:12px;color:var(--ink-2)">${nf(kcal*skala)} kcal</span></div>
-    <div style="font-size:14px;margin-top:3px">${items}</div></div>`;
-  $('mealplan').innerHTML =
-    m('Frühstück','250 g Magerquark mit 40 g Haferflocken, einer Handvoll Beeren und Zimt. Dazu Kaffee schwarz.',430)+
-    m('Mittag','200 g Hähnchenbrust oder Seelachs, 200 g Kartoffeln, so viel Gemüse wie draufpasst, 1 EL Rapsöl.',600)+
-    m('Nachmittag','1 Apfel und 20 g Mandeln. Oder Harzer Käse, wenn der Eiweißwert noch fehlt.',230)+
-    m('Abend','3 Eier oder 150 g Hüttenkäse, 2 Scheiben Vollkornbrot, Gurke, Tomate, Paprika.',560)+
-    m('Puffer','Rund 80 kcal bleiben übrig – für Milch im Kaffee oder ein Stück Schokolade.',80)+
-    `<p class="hint" style="margin:12px 0 0">Die Angaben skalieren mit deinem Tagesziel. Kantine oder Baustelle: nimm das Fleisch oder den Fisch, doppelt Gemüse, halbe Beilage, und die Soße daneben statt drüber.</p>`;
+const AMPEL=[
+ ['gruen','Reichlich – hier musst du nicht zählen',
+  '<b>Eiweiß:</b> Magerquark, Skyr, Hüttenkäse, Harzer Käse, Eier, Hähnchen- und Putenbrust, mageres Rind, Seelachs/Kabeljau, Thunfisch im Wasser, Linsen, Bohnen. <b>Gemüse:</b> alles – Brokkoli, Blumenkohl, Paprika, Gurke, Tomate, Salat, Zucchini, Champignons, Spinat, Karotten, Sauerkraut (TK ist genauso gut). <b>Trinken:</b> Wasser, Kaffee/Tee schwarz, Light-Getränke.'],
+ ['gelb','Mit Maß – abmessen statt schätzen',
+  '<b>Beilagen:</b> Kartoffeln, Vollkornbrot, Haferflocken, Naturreis, Vollkornnudeln – etwa eine Portion pro Mahlzeit. <b>Obst:</b> Apfel, Beeren, Banane, 1–2 Stück am Tag. <b>Fett:</b> Raps-/Olivenöl, Nüsse, Avocado – 1 EL bzw. eine kleine Handvoll pro Mahlzeit. <b>Dazu:</b> Käse 30–45 %, Vollmilch.'],
+ ['rot','Selten – kleine Mengen, bewusst genießen',
+  '<b>Süßes & Snacks:</b> Schokolade, Kekse, Kuchen, Chips. <b>Flüssige Kalorien:</b> Saft, Softdrinks, Bier, Wein, Latte – der größte versteckte Hebel. <b>Fettes:</b> Bratwurst, Leberkäse, Mayonnaise, Frittiertes, Pommes.']
+];
+const RECIPES=[
+ {id:'quark',cat:'Frühstück',name:'Quark-Powerschale',kcal:430,ew:40,zeit:'5 Min',
+  zutaten:['250 g Magerquark','40 g Haferflocken','100 g Beeren (TK ok)','1 TL Zimt','Schuss Wasser oder Milch'],
+  schritte:['Quark in eine Schüssel geben und mit etwas Wasser oder Milch cremig rühren.','Haferflocken und Zimt unterrühren.','Beeren daraufgeben – fertig.']},
+ {id:'ruehrei',cat:'Frühstück',name:'Rührei-Brot',kcal:450,ew:28,zeit:'10 Min',
+  zutaten:['3 Eier','2 Scheiben Vollkornbrot','1 Tomate, etwas Gurke','1 TL Öl','Salz, Pfeffer'],
+  schritte:['Eier verquirlen und salzen.','In beschichteter Pfanne mit 1 TL Öl bei mittlerer Hitze stocken lassen, dabei rühren.','Mit Brot und rohem Gemüse servieren.']},
+ {id:'oats',cat:'Frühstück',name:'Overnight-Skyr',kcal:420,ew:30,zeit:'3 Min (abends)',
+  zutaten:['200 g Skyr','40 g Haferflocken','1 Apfel','1 TL Zimt','100 ml Wasser'],
+  schritte:['Apfel würfeln, alles in ein Glas geben.','Verrühren und über Nacht in den Kühlschrank.','Morgens direkt löffelfertig.']},
+ {id:'haehnchen',cat:'Mittag',name:'Hähnchen-Kartoffel-Pfanne',kcal:640,ew:50,zeit:'25 Min',
+  zutaten:['200 g Hähnchenbrust','250 g Kartoffeln','300 g Gemüse (Paprika, Zucchini, Zwiebel)','1 EL Rapsöl','Salz, Pfeffer, Paprikapulver'],
+  schritte:['Kartoffeln würfeln und 10 Min in Salzwasser vorkochen, abgießen.','Hähnchen in Streifen schneiden, in 1 EL Öl kräftig anbraten, herausnehmen.','Gemüse und Kartoffeln in der Pfanne 8 Min braten.','Hähnchen zurück in die Pfanne, würzen, kurz durchschwenken.']},
+ {id:'seelachs',cat:'Mittag',name:'Ofen-Seelachs mit Gemüse',kcal:600,ew:42,zeit:'35 Min',
+  zutaten:['200 g Seelachsfilet','200 g Kartoffeln','300 g Gemüse (Paprika, Zucchini, Tomate)','1 EL Olivenöl','½ Zitrone','Salz, Pfeffer, Kräuter'],
+  schritte:['Ofen auf 200 °C vorheizen.','Kartoffeln und Gemüse in Spalten schneiden, mit Öl, Salz und Pfeffer mischen, aufs Blech, 20 Min backen.','Fisch salzen, mit Zitrone beträufeln, dazulegen und weitere 12–15 Min backen.']},
+ {id:'linsen',cat:'Mittag',name:'Linsen-Hack-Eintopf',kcal:640,ew:48,zeit:'30 Min',
+  zutaten:['150 g Rinderhack 5 %','80 g rote Linsen','1 Karotte, 1 Zwiebel','200 g stückige Tomaten (Dose)','400 ml Brühe','Salz, Pfeffer, Paprikapulver'],
+  schritte:['Zwiebel und Karotte würfeln, mit dem Hack in einem Topf anbraten.','Linsen, Tomaten und Brühe dazugeben.','20 Min köcheln, bis die Linsen weich sind, kräftig würzen.']},
+ {id:'pute',cat:'Mittag',name:'Puten-Reispfanne',kcal:620,ew:50,zeit:'25 Min',
+  zutaten:['200 g Putenbrust','60 g Reis (roh)','300 g Gemüse (Brokkoli, Paprika)','1 EL Öl','2 EL Sojasauce'],
+  schritte:['Reis nach Packungsangabe kochen.','Pute in Streifen scharf anbraten, herausnehmen.','Gemüse 6–8 Min braten, Reis und Pute dazu, mit Sojasauce abschmecken.']},
+ {id:'huetten',cat:'Abend',name:'Hüttenkäse-Brotteller',kcal:500,ew:35,zeit:'5 Min',
+  zutaten:['200 g Hüttenkäse','2 Scheiben Vollkornbrot','1 Paprika, Gurke, Tomaten','Schnittlauch','Salz, Pfeffer'],
+  schritte:['Hüttenkäse mit Salz, Pfeffer und Schnittlauch verrühren.','Auf das Brot streichen.','Rohes Gemüse in Sticks dazu.']},
+ {id:'omelett',cat:'Abend',name:'Gemüse-Omelett mit Harzer',kcal:470,ew:55,zeit:'15 Min',
+  zutaten:['3 Eier','100 g Harzer Käse','200 g Gemüse (Champignons, Paprika, Spinat)','1 TL Öl','Salz, Pfeffer'],
+  schritte:['Gemüse in 1 TL Öl anbraten.','Eier verquirlen, darübergeben und stocken lassen.','Harzer in Scheiben auflegen, Omelett zusammenklappen, kurz ziehen lassen.']},
+ {id:'thunsalat',cat:'Abend',name:'Thunfisch-Kraftsalat',kcal:520,ew:48,zeit:'10 Min',
+  zutaten:['1 Dose Thunfisch im Wasser (150 g)','2 hartgekochte Eier','100 g Kidneybohnen','gemischter Salat, Tomate, Gurke','1 EL Olivenöl + Essig'],
+  schritte:['Salat und Gemüse in eine große Schüssel geben.','Thunfisch abtropfen lassen, mit Bohnen und geviertelten Eiern daraufgeben.','Öl und Essig darüber, salzen, gut durchmischen.']}
+];
+const recMap={}; RECIPES.forEach(r=>recMap[r.id]=r);
+const SNACKS=[
+ ['Apfel + 20 g Mandeln','~170 kcal'],
+ ['150 g Skyr mit Beeren','~120 kcal · viel Eiweiß'],
+ ['2 Rollen Harzer Käse mit Tomate','~130 kcal · sehr viel Eiweiß'],
+ ['Gemüsesticks + 100 g Hüttenkäse als Dip','~120 kcal'],
+ ['Proteinshake (30 g Pulver in Wasser)','~115 kcal']
+];
+const WEEKPLAN=[
+ ['Mo','quark','haehnchen','huetten','Apfel + 20 g Mandeln'],
+ ['Di','ruehrei','linsen','thunsalat','150 g Skyr mit Beeren'],
+ ['Mi','oats','pute','omelett','Harzer Käse mit Tomate'],
+ ['Do','quark','seelachs','huetten','Proteinshake'],
+ ['Fr','ruehrei','haehnchen','thunsalat','Gemüsesticks + Hüttenkäse'],
+ ['Sa','oats','linsen','omelett','Apfel + 20 g Mandeln'],
+ ['So','ruehrei','pute','huetten','150 g Skyr mit Beeren']
+];
+const SHOP=[
+ ['Eiweiß',['Magerquark 500 g','Skyr 750 g','Hüttenkäse 600 g','Harzer Käse 3 Packungen','Eier 20 Stück (2 Kartons)','Hähnchenbrust 400 g','Putenbrust 400 g','Rinderhack 5 % 300 g','Seelachsfilet 200 g','Thunfisch im Wasser 2 Dosen']],
+ ['Beilagen & Vorrat',['Haferflocken 500 g','Vollkornbrot 1 Laib','Kartoffeln 1 kg','Reis 1 Packung','Rote Linsen 1 Packung','Kidneybohnen 1 Dose','Stückige Tomaten 1 Dose']],
+ ['Gemüse & Obst',['Paprika 5 Stück','Zucchini 2','Brokkoli 1 Kopf (oder TK 500 g)','Champignons 250 g','Tomaten 500 g','Gurken 2','Karotten 500 g','Zwiebeln 3','Salat 2 Köpfe / Beutel','Spinat 200 g (TK ok)','Beeren 500 g (TK)','Äpfel 5']],
+ ['Fett & Würze',['Raps- und Olivenöl','Mandeln 100 g','Sojasauce, Essig','Zitrone 1','Brühe (Pulver)','Salz, Pfeffer, Paprikapulver, Zimt','Proteinpulver (optional)']]
+];
+function renderKueche(){
+  const catH=t=>`<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin:14px 0 6px;font-weight:500">${t}</div>`;
 
-  $('shop').innerHTML=`
-  <div style="font-size:14px">
-  <p style="margin:0 0 6px"><span class="tag ok">Eiweiß</span> Magerquark, Skyr, Hüttenkäse, Harzer, Eier, Hähnchenbrust, Putenaufschnitt, Seelachs, Lachs, Thunfisch im Wasser, Linsen.</p>
-  <p style="margin:0 0 6px"><span class="tag">Gemüse</span> Brokkoli, Blumenkohl, Karotten, Paprika, Gurke, Tomaten, Salat, Zwiebeln, Sauerkraut. Tiefkühlgemüse ist völlig in Ordnung.</p>
-  <p style="margin:0 0 6px"><span class="tag">Beilagen</span> Kartoffeln, Vollkornbrot, Haferflocken, Naturreis, Vollkornnudeln.</p>
-  <p style="margin:0 0 6px"><span class="tag">Fett</span> Rapsöl, Olivenöl, Mandeln, Walnüsse. Sparsam abmessen, nicht schütten.</p>
-  <p style="margin:0"><span class="tag sig">Nicht mitnehmen</span> Chips, Kekse, Softdrinks, Saft, Bierkasten. Was nicht im Haus ist, isst du abends auch nicht.</p>
-  </div>`;
+  $('ampel').innerHTML='<div class="ampel">'+AMPEL.map(a=>
+    `<div class="zeile ${a[0]}"><b>${a[1]}</b><div class="txt">${a[2]}</div></div>`).join('')+'</div>';
+
+  $('weekmenu').innerHTML='<table><tr><th>Tag</th><th>Frühstück</th><th>Mittag</th><th>Abend</th><th>Snack</th></tr>'+
+    WEEKPLAN.map(w=>`<tr><td class="mono"><b>${w[0]}</b></td><td>${recMap[w[1]].name}</td><td>${recMap[w[2]].name}</td><td>${recMap[w[3]].name}</td><td class="hint">${w[4]}</td></tr>`).join('')+'</table>'+
+    '<p class="hint" style="margin:8px 0 0">Das ergibt rund 1.700–1.900 kcal am Tag mit viel Eiweiß – Kaffeemilch oder ein Nachschlag Gemüse ist da schon drin. Die Snacks sind Kür: nur essen, wenn du wirklich Hunger hast.</p>';
+
+  $('recipes').innerHTML = ['Frühstück','Mittag','Abend'].map(cat=>
+    catH(cat)+RECIPES.filter(r=>r.cat===cat).map(r=>
+      `<details class="rz"><summary><span class="rzn">${r.name}</span><span class="rzm">${r.kcal} kcal · ${r.ew} g EW · ${r.zeit}</span></summary>
+      <div class="rzbody">
+        <h4>Zutaten · 1 Portion</h4>
+        <ul>${r.zutaten.map(z=>`<li>${z}</li>`).join('')}</ul>
+        <h4>Zubereitung</h4>
+        <ol>${r.schritte.map(s=>`<li>${s}</li>`).join('')}</ol>
+      </div></details>`).join('')).join('')+
+    catH('Snacks · ohne Kochen')+
+    '<table>'+SNACKS.map(s=>`<tr><td>${s[0]}</td><td class="hint" style="text-align:right">${s[1]}</td></tr>`).join('')+'</table>';
+
+  $('shop').innerHTML = SHOP.map(g=>
+    `<div style="margin-bottom:12px"><div class="tag ok" style="margin-bottom:6px">${g[0]}</div>`+
+    '<table>'+g[1].map(item=>`<tr><td>${item}</td></tr>`).join('')+'</table></div>').join('')+
+    '<div class="warn">Was nicht im Haus ist, isst du abends auch nicht – die rote Ampel-Spalte bleibt im Laden.</div>';
 }
 
 /* ---------------- Rendern: Sport ---------------- */
@@ -835,7 +944,7 @@ $('res').onclick=async()=>{
 };
 
 /* ---------------- Start ---------------- */
-function renderAll(){renderPlan();renderGewicht();renderEssen();renderMealplan();renderSport();renderWoche()}
+function renderAll(){renderPlan();renderGewicht();renderEssen();renderKueche();renderSport();renderWoche()}
 
 (async()=>{
   $('foods').innerHTML=FOODS.map(f=>`<option value="${f[0]}">`).join('');

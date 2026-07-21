@@ -7,7 +7,7 @@ Alles steckt in einer einzigen HTML-Datei — kein Build, kein Server, kein Kont
 
 - **Planung** – Grunddaten erfassen, Grund-/Gesamtumsatz (BMR/TDEE), Tagesziel, Defizit und Zieltermin berechnen
 - **Gewicht** – tägliche Messungen eintragen, Soll-Ist-Vergleich mit Verlaufsdiagramm und 7-Tage-Schnitt
-- **Ernährung** – Tagesziele für Kalorien/Makros, Tagebuch mit Lebensmittel-Datenbank, Beispieltag und Einkaufsliste
+- **Ernährung** – Tagesziele für Kalorien/Makros, Ampel-Liste „Was darf ich essen", fertiger 7-Tage-Essensplan, aufklappbare Rezepte mit Zutaten und Zubereitung, Wochen-Einkaufsliste mit Mengen und optionales Tagebuch
 - **Sport** – Wochenprogramm, zwei Kraft-Einheiten (Ganzkörper), Ausdauer, Trainings-Log
 - **Woche** – wöchentlicher Gewohnheits-Check, Troubleshooting, Daten-Export (JSON) und Reset
 
