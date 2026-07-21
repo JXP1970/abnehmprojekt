@@ -311,7 +311,22 @@ svg text{font-family:"IBM Plex Mono",monospace}
   </div>
 
   <div class="card">
-    <h2>Einheit abhaken <span class="nr">18 · Bautagebuch</span></h2>
+    <h2>Rudergerät · Intervalle <span class="nr">18 · Schlagzahl</span></h2>
+    <div id="ruder"></div>
+  </div>
+
+  <div class="card">
+    <h2>Cross-Laufgerät · Intervalle <span class="nr">19 · Vortrieb</span></h2>
+    <div id="cross"></div>
+  </div>
+
+  <div class="card">
+    <h2>Nordic Walking · Touren <span class="nr">20 · Streckenplan</span></h2>
+    <div id="nordic"></div>
+  </div>
+
+  <div class="card">
+    <h2>Einheit abhaken <span class="nr">21 · Bautagebuch</span></h2>
     <div class="row">
       <div><label for="s-date">Datum</label><input id="s-date" type="date"></div>
       <div><label for="s-typ">Einheit</label>
@@ -330,15 +345,15 @@ svg text{font-family:"IBM Plex Mono",monospace}
 <!-- ================= WOCHE ================= -->
 <section id="woche" hidden>
   <div class="card">
-    <h2>Wochen-Abnahme <span class="nr">19 · Prüfung</span></h2>
+    <h2>Wochen-Abnahme <span class="nr">22 · Prüfung</span></h2>
     <div id="weekly"></div>
   </div>
   <div class="card">
-    <h2>Wenn es klemmt <span class="nr">20 · Mängelbehebung</span></h2>
+    <h2>Wenn es klemmt <span class="nr">23 · Mängelbehebung</span></h2>
     <div id="trouble"></div>
   </div>
   <div class="card">
-    <h2>Daten <span class="nr">21 · Archiv</span></h2>
+    <h2>Daten <span class="nr">24 · Archiv</span></h2>
     <div class="row">
       <div class="fix"><button class="act ghost" id="exp">Export (JSON)</button></div>
       <div class="fix"><button class="act ghost" id="res">Alles zurücksetzen</button></div>
@@ -644,6 +659,43 @@ const SEIL_INTERVALLE=[
  ['Runde 5 · frei','So lange am Stück, wie es sauber geht. Verhaspelt? Kurz sammeln und weiter, kein Drama.'],
  ['Ausklang · 3 min','Locker auslaufen, Waden und Achillessehne gründlich dehnen.']
 ];
+const RUDER={
+ intro:'Antrieb in der Reihenfolge Beine – Rumpf – Arme, zurück in umgekehrter Folge. Rücken bleibt gerade, die Kraft kommt aus den Beinen, nicht aus den Armen. Widerstand mittel.',
+ rows:[
+  ['Aufwärmen · 5 min','Locker rudern, rund 20 Schläge/min. Bewegungsablauf sauber einschleifen.'],
+  ['Grundlage · 15–20 min','Gleichmäßig bei 22–24 Schlägen/min, Unterhaltung muss möglich sein. Das ist der Hauptteil.'],
+  ['Intervalle · 6 × 1 min','1 min kräftig ziehen (26–28 Schläge/min), dann 1 min locker. Die Beine geben den Druck.'],
+  ['Pyramide (Alternative)','250 m / 500 m / 750 m / 500 m / 250 m, dazwischen je 1 min Pause. Für Abwechslung statt der Intervalle.'],
+  ['Ausklang · 3 min','Locker ausrudern, Schultern und unteren Rücken lockern.']
+ ],
+ warn:'Rücken gerade halten, kein Rundrücken beim Zurücklehnen. Bei Rückenbeschwerden Widerstand runter und sauber ziehen statt reißen.'
+};
+const CROSS={
+ intro:'Aufrecht stehen, die Griffe aktiv mitschieben statt sich festzuklammern. Runder, gleichmäßiger Tritt – Arme und Beine arbeiten zusammen.',
+ rows:[
+  ['Aufwärmen · 5 min','Lockeres Tempo, mittlerer Widerstand. Reinkommen, Rhythmus finden.'],
+  ['Grundlage · 25–30 min','Gleichmäßig, Puls moderat, Unterhaltung möglich. Ideal am Tag nach dem Krafttraining.'],
+  ['Intervalle · 5 × 3 min','3 min zügig / 2 min locker im Wechsel. Für die zügigen Blöcke den Widerstand hoch.'],
+  ['Rückwärts (Alternative)','Ein paar Minuten rückwärts treten fordert andere Muskeln – nur wenn du sicher stehst.'],
+  ['Ausklang · 5 min','Tempo langsam rausnehmen, ausschütteln.']
+ ],
+ warn:'Gelenkschonend, gut für den Einstieg und lange Einheiten. Nicht in die Griffe hängen – der Oberkörper macht mit.'
+};
+const NORDIC={
+ intro:'Stöcke aktiv nach hinten wegdrücken, Arm-Bein-Diagonale wie beim Gehen. Aufrechte Haltung, Blick nach vorn. Der Oberkörper bringt den Mehrverbrauch gegenüber normalem Gehen.',
+ rows:[
+  ['Aufwärmen · 5 min','Locker anmarschieren, Stöcke erst nur mitführen, dann aktiv einsetzen.'],
+  ['Grundtour · 45–60 min','Zügiges Tempo, du kommst leicht ins Schwitzen, kannst aber noch reden. Die Standard-Einheit.'],
+  ['Berg/Intervall · 4 × 4 min','An einer Steigung oder zügig 4 min Druck / 3 min locker. Treibt Puls und Kalorien.'],
+  ['Lange Tour · 90 min–3 h','Einmal pro Woche am Wochenende. Zählt doppelt: Kalorien und Kopf.'],
+  ['Ausklang','Letzte 5 min locker austraben, danach Waden und Hüftbeuger dehnen.']
+ ],
+ warn:'Stocklänge etwa Körpergröße × 0,66. Handschlaufen so einstellen, dass du die Stöcke locker führen kannst, ohne sie festzuhalten.'
+};
+const cardioCard=c=>`<p class="hint" style="margin:0 0 10px">${c.intro}</p>`+
+  '<table><tr><th>Block</th><th>Inhalt</th></tr>'+
+  c.rows.map(r=>`<tr><td style="width:34%"><b>${r[0]}</b></td><td class="hint">${r[1]}</td></tr>`).join('')+'</table>'+
+  (c.warn?`<div class="warn">${c.warn}</div>`:'');
 function renderSport(){
   $('plan-sport').innerHTML=`<table>
     <tr><th>Tag</th><th>Einheit</th></tr>
@@ -669,6 +721,9 @@ function renderSport(){
     '<table><tr><th>Block</th><th>Inhalt</th></tr>'+
     SEIL_INTERVALLE.map(s=>`<tr><td style="width:34%"><b>${s[0]}</b></td><td class="hint">${s[1]}</td></tr>`).join('')+'</table>'+
     '<div class="warn">Springen ist stoßintensiv. Bei Knie-, Sprunggelenk- oder Rückenproblemen die Intervalle kurz halten oder auf Rudergerät bzw. Cross-Laufgerät ausweichen.</div>';
+  $('ruder').innerHTML=cardioCard(RUDER);
+  $('cross').innerHTML=cardioCard(CROSS);
+  $('nordic').innerHTML=cardioCard(NORDIC);
   renderSlist();
 }
 function renderSlist(){
