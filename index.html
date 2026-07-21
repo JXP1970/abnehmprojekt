@@ -181,6 +181,28 @@ details.rz[open]>summary{border-bottom:1px solid var(--rule)}
 .seg button+button{border-left:1px solid var(--rule)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .seg button:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
+
+/* ---------- Einkaufsliste zum Abhaken ---------- */
+.shopitem{display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid var(--grid);cursor:pointer}
+.shopitem input{width:18px;height:18px;flex:0 0 auto;accent-color:var(--pruef);cursor:pointer}
+.shopitem .nm{flex:1;font-size:14px}
+.shopitem .qt{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.shopitem input:checked ~ .nm{text-decoration:line-through;color:var(--ink-2)}
+.shopitem input:checked ~ .qt{text-decoration:line-through}
+
+/* ---------- Druckansicht: nur die Einkaufsliste ---------- */
+@media print{
+  header,nav,.foot{display:none!important}
+  #plan,#gewicht,#sport,#woche{display:none!important}
+  #essen .card{display:none!important}
+  #essen #shopcard{display:block!important;border:0;margin:0;padding:0}
+  main{padding:0;max-width:none}
+  .noprint{display:none!important}
+  .shopitem{break-inside:avoid;border-bottom:1px solid #ccc}
+  .shopitem input{-webkit-appearance:none;appearance:none;width:14px;height:14px;
+    border:1.5px solid #333;border-radius:2px}
+  .tag.ok{color:#000;border-color:#000}
+}
 svg text{font-family:"IBM Plex Mono",monospace}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -306,14 +328,49 @@ svg text{font-family:"IBM Plex Mono",monospace}
     <div id="recipes"></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="shopcard">
     <h2>Einkaufsliste <span class="nr">12 · Materialbedarf</span></h2>
-    <p class="hint" style="margin:0 0 10px">Passt sich an Menü-Woche und Personenzahl oben an. Nach Regalen sortiert.</p>
+    <p class="hint noprint" style="margin:0 0 10px">Passt sich an Menü-Woche und Personenzahl oben an. Zum Abhaken antippen – oder mit „Liste drucken" als Zettel für den Einkauf.</p>
     <div id="shop"></div>
+    <div class="noprint" style="margin-top:12px"><button class="act ghost" id="printshop">Liste drucken</button></div>
   </div>
 
   <div class="card">
-    <h2>Tagebuch <span class="nr">13 · Verbrauchsnachweis</span></h2>
+    <h2>Meal-Prep · Sonntag vorkochen <span class="nr">13 · Vorfertigung</span></h2>
+    <p class="hint" style="margin:0 0 12px">Einmal am Wochenende 60–90 Min vorkochen, dann habt ihr die Woche kaum noch Aufwand. Zu zweit lohnt sich das doppelt: doppelte Mengen kochen, gleich in Portionsdosen aufteilen.</p>
+
+    <div style="font-size:14px">
+      <p style="margin:0 0 6px"><span class="tag ok">Gut vorzukochen</span> Kartoffeln, Süßkartoffeln, Reis, Linsen-Hack-Eintopf, Ofengemüse, gebratene Hähnchen-/Putenbrust, Rinderstreifen, hartgekochte Eier, Overnight-Skyr und Haferbrei-Basis.</p>
+      <p style="margin:0 0 6px"><span class="tag">Frisch machen</span> Rührei &amp; Spiegelei, Salate, Hüttenkäse- und Quark-Teller, Fisch – schmeckt frisch am besten und geht ohnehin schnell.</p>
+    </div>
+
+    <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px">Ablauf am Sonntag</h3>
+    <ol style="margin:0;padding-left:20px;font-size:14px">
+      <li style="margin-bottom:6px"><b>Ofen an:</b> zwei Bleche Ofengemüse plus Kartoffeln/Süßkartoffeln rösten.</li>
+      <li style="margin-bottom:6px"><b>Herd:</b> großer Topf Reis und ein Topf Linsen-Hack-Eintopf (= 4 Portionen).</li>
+      <li style="margin-bottom:6px"><b>Pfanne:</b> Hähnchen- und Putenbrust portionsweise anbraten.</li>
+      <li style="margin-bottom:6px"><b>6–8 Eier</b> hart kochen – für Snacks und Salate.</li>
+      <li style="margin-bottom:6px"><b>Gläser:</b> Overnight-Skyr / Haferbrei-Basis für 2–3 Tage ansetzen.</li>
+      <li><b>Gemüse</b> waschen, schnippeln und in Dosen vorbereiten.</li>
+    </ol>
+
+    <h3 style="font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px">Aufbewahrung &amp; Haltbarkeit</h3>
+    <table>
+      <tr><th>Gericht</th><th>Kühlschrank</th><th>Einfrieren</th></tr>
+      <tr><td>Eintopf / Hackgericht</td><td class="num">3–4 Tage</td><td class="num">2–3 Mon.</td></tr>
+      <tr><td>Gebratenes Fleisch</td><td class="num">2–3 Tage</td><td class="num">2–3 Mon.</td></tr>
+      <tr><td>Fisch (gegart)</td><td class="num">1–2 Tage</td><td class="num">1 Mon.</td></tr>
+      <tr><td>Reis / Kartoffeln</td><td class="num">2–3 Tage</td><td class="num">gut geeignet</td></tr>
+      <tr><td>Ofengemüse</td><td class="num">3–4 Tage</td><td class="num">weniger gut</td></tr>
+      <tr><td>Hartgekochte Eier</td><td class="num">bis 1 Woche</td><td class="num">nein</td></tr>
+      <tr><td>Overnight-Skyr / Haferbrei</td><td class="num">2–3 Tage</td><td class="num">nein</td></tr>
+    </table>
+
+    <div class="warn">In Portionsdosen für zwei abfüllen und mit Datum beschriften. Was ihr nicht in 3 Tagen esst, wandert ins Gefrierfach – am Vorabend in den Kühlschrank zum Auftauen. Reis zügig abkühlen, kalt stellen und vor dem Essen gründlich wiedererhitzen.</div>
+  </div>
+
+  <div class="card">
+    <h2>Tagebuch <span class="nr">14 · Verbrauchsnachweis</span></h2>
     <p class="hint" style="margin:0 0 10px">Optional. Wenn du dem Wochenmenü folgst, musst du hier nichts eintragen – es ist nur da, falls du mal etwas anderes isst und mitzählen willst.</p>
     <div class="row" style="margin-bottom:10px">
       <div style="flex:2"><label for="e-food">Lebensmittel</label>
@@ -335,53 +392,53 @@ svg text{font-family:"IBM Plex Mono",monospace}
 <!-- ================= SPORT ================= -->
 <section id="sport" hidden>
   <div class="card">
-    <h2>Wochenprogramm <span class="nr">14 · Bauablauf</span></h2>
+    <h2>Wochenprogramm <span class="nr">15 · Bauablauf</span></h2>
     <p class="hint" style="margin:0 0 12px">Zwei Krafteinheiten am Multifunktionsgerät (Seilzug/Butterfly), zwei bis drei Ausdauereinheiten über Rudergerät, Cross-Laufgerät, Nordic Walking, Boxsack oder Sprungseil. Alles komplett zuhause bzw. vor der Tür.</p>
     <div id="plan-sport"></div>
   </div>
 
   <div class="card">
-    <h2>Kraft A · Ganzkörper <span class="nr">15</span></h2>
+    <h2>Kraft A · Ganzkörper <span class="nr">16</span></h2>
     <div id="ka"></div>
   </div>
 
   <div class="card">
-    <h2>Kraft B · Ganzkörper <span class="nr">16</span></h2>
+    <h2>Kraft B · Ganzkörper <span class="nr">17</span></h2>
     <div id="kb"></div>
   </div>
 
   <div class="card">
-    <h2>Ausdauer <span class="nr">17</span></h2>
+    <h2>Ausdauer <span class="nr">18</span></h2>
     <div id="aus"></div>
   </div>
 
   <div class="card">
-    <h2>Boxsack · Runden <span class="nr">18 · Schlagplan</span></h2>
+    <h2>Boxsack · Runden <span class="nr">19 · Schlagplan</span></h2>
     <div id="box"></div>
   </div>
 
   <div class="card">
-    <h2>Sprungseil · Intervalle <span class="nr">19 · Taktschlag</span></h2>
+    <h2>Sprungseil · Intervalle <span class="nr">20 · Taktschlag</span></h2>
     <div id="seil"></div>
   </div>
 
   <div class="card">
-    <h2>Rudergerät · Intervalle <span class="nr">20 · Schlagzahl</span></h2>
+    <h2>Rudergerät · Intervalle <span class="nr">21 · Schlagzahl</span></h2>
     <div id="ruder"></div>
   </div>
 
   <div class="card">
-    <h2>Cross-Laufgerät · Intervalle <span class="nr">21 · Vortrieb</span></h2>
+    <h2>Cross-Laufgerät · Intervalle <span class="nr">22 · Vortrieb</span></h2>
     <div id="cross"></div>
   </div>
 
   <div class="card">
-    <h2>Nordic Walking · Touren <span class="nr">22 · Streckenplan</span></h2>
+    <h2>Nordic Walking · Touren <span class="nr">23 · Streckenplan</span></h2>
     <div id="nordic"></div>
   </div>
 
   <div class="card">
-    <h2>Einheit abhaken <span class="nr">23 · Bautagebuch</span></h2>
+    <h2>Einheit abhaken <span class="nr">24 · Bautagebuch</span></h2>
     <div class="row">
       <div><label for="s-date">Datum</label><input id="s-date" type="date"></div>
       <div><label for="s-typ">Einheit</label>
@@ -400,15 +457,15 @@ svg text{font-family:"IBM Plex Mono",monospace}
 <!-- ================= WOCHE ================= -->
 <section id="woche" hidden>
   <div class="card">
-    <h2>Wochen-Abnahme <span class="nr">24 · Prüfung</span></h2>
+    <h2>Wochen-Abnahme <span class="nr">25 · Prüfung</span></h2>
     <div id="weekly"></div>
   </div>
   <div class="card">
-    <h2>Wenn es klemmt <span class="nr">25 · Mängelbehebung</span></h2>
+    <h2>Wenn es klemmt <span class="nr">26 · Mängelbehebung</span></h2>
     <div id="trouble"></div>
   </div>
   <div class="card">
-    <h2>Daten <span class="nr">26 · Archiv</span></h2>
+    <h2>Daten <span class="nr">27 · Archiv</span></h2>
     <div class="row">
       <div class="fix"><button class="act ghost" id="exp">Export (JSON)</button></div>
       <div class="fix"><button class="act ghost" id="res">Alles zurücksetzen</button></div>
@@ -804,8 +861,9 @@ function renderKueche(){
   $('shop').innerHTML = `<p class="hint" style="margin:0 0 10px">Menü <b>Woche ${wk}</b> · für <b>${perLbl}</b> · eine Woche. Vorratssachen (Öl, Gewürze) reichen meist länger.</p>`+
     WK.shop.map(g=>
     `<div style="margin-bottom:12px"><div class="tag ok" style="margin-bottom:6px">${g[0]}</div>`+
-    '<table>'+g[1].map(it=>`<tr><td>${it[0]}</td><td class="num">${fmtShop(it[1]==null?null:it[1]*per,it[2])}</td></tr>`).join('')+'</table></div>').join('')+
-    '<div class="warn">Was nicht im Haus ist, isst ihr abends auch nicht – die rote Ampel-Spalte bleibt im Laden.</div>';
+    g[1].map(it=>`<label class="shopitem"><input type="checkbox"><span class="nm">${it[0]}</span><span class="qt">${fmtShop(it[1]==null?null:it[1]*per,it[2])}</span></label>`).join('')+
+    '</div>').join('')+
+    '<div class="warn noprint">Was nicht im Haus ist, isst ihr abends auch nicht – die rote Ampel-Spalte bleibt im Laden.</div>';
 }
 
 /* ---------------- Rendern: Sport ---------------- */
@@ -1013,6 +1071,8 @@ $('s-add').onclick=async()=>{
   S.workouts.push({d:$('s-date').value||heute,t:$('s-typ').value});
   await DB.save(S); renderSlist();
 };
+
+$('printshop').onclick=()=>window.print();
 
 $('exp').onclick=()=>{
   const ta=$('expout'); ta.style.height='140px'; ta.style.opacity='1';
