@@ -13,7 +13,7 @@ Alles steckt in einer einzigen HTML-Datei — kein Build, kein Server, kein Kont
 
 ## Nutzung
 
-Die Datei [`abnehmprojekt.html`](abnehmprojekt.html) einfach im Browser öffnen –
+Die Datei [`index.html`](index.html) einfach im Browser öffnen –
 oder online über GitHub Pages nutzen.
 
 > **Speicherung:** Alle Eingaben werden im `localStorage` des jeweiligen Browsers gespeichert.
