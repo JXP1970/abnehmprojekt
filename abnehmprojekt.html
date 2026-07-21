@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projekt −10 kg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#12283F;        /* Bauplan-Tinte */
+  --ink-2:#3B5A78;
+  --paper:#F4F6F5;      /* Planpapier */
+  --paper-2:#FFFFFF;
+  --rule:#C9D4DC;
+  --signal:#E2600A;     /* Baustellen-Signalfarbe, sparsam */
+  --pruef:#1E7A55;      /* Prüfgrün */
+  --grid:#DDE5EA;
+  --r:3px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:15px;line-height:1.5;
+  -webkit-text-size-adjust:100%;
+}
+.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+h1,h2,h3,.disp{font-family:"Oswald",sans-serif;font-weight:500;letter-spacing:.02em;margin:0}
+
+/* ---------- Kopf ---------- */
+header{
+  background:var(--ink);color:#EAF1F5;
+  padding:18px 18px 14px;
+  border-bottom:4px solid var(--signal);
+}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:#8FB0C6;
+}
+header h1{font-size:30px;line-height:1;text-transform:uppercase;margin:6px 0 2px}
+header h1 .kg{color:var(--signal)}
+.stand{font-size:12px;color:#8FB0C6;font-family:"IBM Plex Mono",monospace}
+
+/* ---------- Navigation ---------- */
+nav{
+  display:flex;overflow-x:auto;background:var(--paper-2);
+  border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:10;
+  scrollbar-width:none;
+}
+nav::-webkit-scrollbar{display:none}
+nav button{
+  flex:0 0 auto;background:none;border:0;border-bottom:3px solid transparent;
+  padding:12px 15px;font-family:"Oswald",sans-serif;font-size:14px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;
+}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--signal)}
+nav button:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
+
+main{padding:16px 14px 90px;max-width:760px;margin:0 auto}
+section[hidden]{display:none}
+
+/* ---------- Bauteile / Karten ---------- */
+.card{
+  background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
+  padding:14px;margin-bottom:14px;
+}
+.card > h2{
+  font-size:15px;text-transform:uppercase;letter-spacing:.08em;
+  padding-bottom:8px;border-bottom:1px solid var(--rule);margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+}
+.card > h2 .nr{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-2);font-weight:400}
+.hint{font-size:13px;color:var(--ink-2)}
+
+/* ---------- Formular ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);margin-bottom:4px;font-family:"IBM Plex Mono",monospace}
+input,select{
+  width:100%;padding:9px 10px;border:1px solid var(--rule);border-radius:var(--r);
+  background:#fff;font-family:"IBM Plex Mono",monospace;font-size:15px;color:var(--ink);
+}
+input:focus,select:focus{outline:2px solid var(--signal);outline-offset:-1px;border-color:var(--signal)}
+button.act{
+  background:var(--ink);color:#fff;border:0;border-radius:var(--r);
+  padding:11px 16px;font-family:"Oswald",sans-serif;font-size:14px;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
+}
+button.act.sig{background:var(--signal)}
+button.act.ghost{background:none;color:var(--ink-2);border:1px solid var(--rule)}
+button:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+
+/* ---------- Kennwerte ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.kpi{background:var(--paper-2);padding:11px 12px}
+.kpi .lb{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-2)}
+.kpi .vl{font-family:"Oswald",sans-serif;font-size:26px;line-height:1.1;margin-top:2px}
+.kpi .vl small{font-size:13px;color:var(--ink-2);font-weight:400}
+.kpi.sig .vl{color:var(--signal)}
+
+/* ---------- Fortschrittsbalken (Bauzeitenplan) ---------- */
+.bar{height:18px;background:repeating-linear-gradient(45deg,#E8EDF0 0 6px,#F4F6F5 6px 12px);
+  border:1px solid var(--rule);position:relative;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--pruef)}
+.barlab{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;
+  font-size:11px;color:var(--ink-2);margin-top:5px}
+
+/* ---------- Tabellen / Listen ---------- */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-2);text-align:left;font-weight:400;
+  border-bottom:1px solid var(--rule);padding:6px 4px}
+td{padding:7px 4px;border-bottom:1px solid var(--grid)}
+td.num{text-align:right;font-family:"IBM Plex Mono",monospace}
+tr.del td{color:var(--ink-2)}
+.x{background:none;border:0;color:var(--ink-2);cursor:pointer;font-size:16px;line-height:1;padding:0 4px}
+
+.check{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--grid)}
+.check:last-child{border-bottom:0}
+.check input[type=checkbox]{width:20px;height:20px;flex:0 0 auto;margin-top:1px;accent-color:var(--pruef)}
+.check .t{font-size:14px}
+.check .s{font-size:12px;color:var(--ink-2)}
+.check.done .t{color:var(--pruef);text-decoration:line-through}
+
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);
+  padding:2px 6px;border-radius:2px;color:var(--ink-2);margin-right:5px}
+.tag.sig{border-color:var(--signal);color:var(--signal)}
+.tag.ok{border-color:var(--pruef);color:var(--pruef)}
+
+.row{display:flex;gap:8px;align-items:flex-end}
+.row > *{flex:1}
+.row > .fix{flex:0 0 auto}
+
+.warn{border-left:3px solid var(--signal);background:#FDF3EC;padding:10px 12px;
+  font-size:13px;border-radius:0 var(--r) var(--r) 0;margin-top:10px}
+.foot{font-size:12px;color:var(--ink-2);text-align:center;padding:0 20px 30px;max-width:600px;margin:0 auto}
+svg text{font-family:"IBM Plex Mono",monospace}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Bauvorhaben · Eigenleistung</div>
+  <h1>Projekt <span class="kg">−10 kg</span></h1>
+  <div class="stand" id="stand">Stand: —</div>
+</header>
+
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="plan">Planung</button>
+  <button role="tab" aria-selected="false" data-t="gewicht">Gewicht</button>
+  <button role="tab" aria-selected="false" data-t="essen">Ernährung</button>
+  <button role="tab" aria-selected="false" data-t="sport">Sport</button>
+  <button role="tab" aria-selected="false" data-t="woche">Woche</button>
+</nav>
+
+<main>
+
+<!-- ================= PLANUNG ================= -->
+<section id="plan">
+  <div class="card">
+    <h2>Grunddaten <span class="nr">01 · Bestandsaufnahme</span></h2>
+    <div class="grid2">
+      <div><label for="f-sex">Geschlecht</label>
+        <select id="f-sex"><option value="m">männlich</option><option value="w">weiblich</option></select></div>
+      <div><label for="f-age">Alter (Jahre)</label><input id="f-age" type="number" inputmode="numeric" value="55"></div>
+      <div><label for="f-h">Größe (cm)</label><input id="f-h" type="number" inputmode="numeric" value="180"></div>
+      <div><label for="f-w">Startgewicht (kg)</label><input id="f-w" type="number" inputmode="decimal" step="0.1" value="92"></div>
+      <div><label for="f-z">Zielgewicht (kg)</label><input id="f-z" type="number" inputmode="decimal" step="0.1" value="82"></div>
+      <div><label for="f-pal">Alltagsbewegung</label>
+        <select id="f-pal">
+          <option value="1.25">Bürotag, wenig Bewegung</option>
+          <option value="1.4" selected>Büro + etwas Baustelle/Gehen</option>
+          <option value="1.55">viel unterwegs, körperlich aktiv</option>
+          <option value="1.7">körperlich schwer / viel Sport</option>
+        </select></div>
+      <div><label for="f-def">Tempo</label>
+        <select id="f-def">
+          <option value="300">ruhig · ca. 0,3 kg/Woche</option>
+          <option value="500" selected>solide · ca. 0,5 kg/Woche</option>
+          <option value="650">zügig · ca. 0,65 kg/Woche</option>
+        </select></div>
+      <div><label for="f-start">Projektbeginn</label><input id="f-start" type="date"></div>
+    </div>
+    <div style="margin-top:12px"><button class="act sig" id="calc">Plan aufstellen</button></div>
+  </div>
+
+  <div class="card">
+    <h2>Bemessung <span class="nr">02 · Statik</span></h2>
+    <div class="kpis" id="kpis"></div>
+    <div id="planText" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Bauzeitenplan <span class="nr">03 · Termine</span></h2>
+    <div class="bar"><i id="pbar" style="width:0%"></i></div>
+    <div class="barlab"><span id="pbA">Start</span><span id="pbB">Ziel</span></div>
+    <p class="hint" id="pbText" style="margin:10px 0 0"></p>
+  </div>
+
+  <div class="card">
+    <h2>Vier Regeln <span class="nr">04 · Ausführungsvorschrift</span></h2>
+    <ol style="margin:0;padding-left:20px;font-size:14px">
+      <li style="margin-bottom:7px"><b>Eiweiß zuerst.</b> Jede Hauptmahlzeit startet mit einer Eiweißquelle. Das hält satt und schützt die Muskulatur.</li>
+      <li style="margin-bottom:7px"><b>Flüssige Kalorien streichen.</b> Saft, Softdrinks, Bier, Latte. Das ist meist der billigste Hebel.</li>
+      <li style="margin-bottom:7px"><b>Einmal pro Woche wiegen zählt nicht.</b> Täglich morgens nüchtern wiegen, bewertet wird nur der 7-Tage-Schnitt.</li>
+      <li><b>Zwei Krafteinheiten pro Woche sind Pflicht,</b> Ausdauer ist die Kür. Ohne Kraft verlierst du zu viel Muskel.</li>
+    </ol>
+    <div class="warn">Kein Ersatz für ärztlichen Rat. Bei Vorerkrankungen, Medikamenten oder wenn es schnell gehen soll: einmal beim Hausarzt Blutwerte und Blutdruck checken lassen, bevor du startest.</div>
+  </div>
+</section>
+
+<!-- ================= GEWICHT ================= -->
+<section id="gewicht" hidden>
+  <div class="card">
+    <h2>Messung eintragen <span class="nr">05 · Aufmaß</span></h2>
+    <div class="row">
+      <div><label for="w-date">Datum</label><input id="w-date" type="date"></div>
+      <div><label for="w-val">Gewicht (kg)</label><input id="w-val" type="number" step="0.1" inputmode="decimal"></div>
+      <div class="fix"><button class="act" id="w-add">Eintragen</button></div>
+    </div>
+    <p class="hint" style="margin:8px 0 0">Morgens, nüchtern, nach dem Klo, ohne Kleidung. Immer gleich.</p>
+  </div>
+
+  <div class="card">
+    <h2>Soll-Ist-Vergleich <span class="nr">06 · Kontrolle</span></h2>
+    <div id="chart"></div>
+    <div class="kpis" style="margin-top:12px" id="wkpis"></div>
+  </div>
+
+  <div class="card">
+    <h2>Messreihe <span class="nr">07 · Protokoll</span></h2>
+    <div id="wlist"></div>
+  </div>
+</section>
+
+<!-- ================= ERNÄHRUNG ================= -->
+<section id="essen" hidden>
+  <div class="card">
+    <h2>Tagesziel <span class="nr">08 · Sollwerte</span></h2>
+    <div class="kpis" id="mkpis"></div>
+    <p class="hint" style="margin:10px 0 0">Eiweiß ist die harte Vorgabe, Fett die Untergrenze, Kohlenhydrate füllen den Rest auf.</p>
+  </div>
+
+  <div class="card">
+    <h2>Tagebuch <span class="nr">09 · Verbrauchsnachweis</span></h2>
+    <div class="row" style="margin-bottom:10px">
+      <div style="flex:2"><label for="e-food">Lebensmittel</label>
+        <input id="e-food" list="foods" placeholder="z. B. Magerquark" autocomplete="off">
+        <datalist id="foods"></datalist></div>
+      <div><label for="e-amt">Menge (g/ml)</label><input id="e-amt" type="number" inputmode="numeric" value="100"></div>
+      <div class="fix"><button class="act" id="e-add">+</button></div>
+    </div>
+    <div class="row" style="margin-bottom:10px">
+      <div><label for="e-date">Tag</label><input id="e-date" type="date"></div>
+      <div><label for="e-kcal">oder frei: kcal</label><input id="e-kcal" type="number" inputmode="numeric" placeholder="—"></div>
+      <div class="fix"><button class="act ghost" id="e-addfree">Buchen</button></div>
+    </div>
+    <div id="elist"></div>
+    <div class="kpis" style="margin-top:12px" id="ekpis"></div>
+  </div>
+
+  <div class="card">
+    <h2>Beispieltag <span class="nr">10 · Regelausführung</span></h2>
+    <div id="mealplan"></div>
+  </div>
+
+  <div class="card">
+    <h2>Einkaufsliste <span class="nr">11 · Materialbedarf</span></h2>
+    <div id="shop"></div>
+  </div>
+</section>
+
+<!-- ================= SPORT ================= -->
+<section id="sport" hidden>
+  <div class="card">
+    <h2>Wochenprogramm <span class="nr">12 · Bauablauf</span></h2>
+    <p class="hint" style="margin:0 0 12px">Zwei Krafteinheiten, zwei bis drei lockere Ausdauereinheiten. Kraft mit Kurzhanteln oder Körpergewicht, geht komplett zuhause.</p>
+    <div id="plan-sport"></div>
+  </div>
+
+  <div class="card">
+    <h2>Kraft A · Ganzkörper <span class="nr">13</span></h2>
+    <div id="ka"></div>
+  </div>
+
+  <div class="card">
+    <h2>Kraft B · Ganzkörper <span class="nr">14</span></h2>
+    <div id="kb"></div>
+  </div>
+
+  <div class="card">
+    <h2>Ausdauer <span class="nr">15</span></h2>
+    <div id="aus"></div>
+  </div>
+
+  <div class="card">
+    <h2>Einheit abhaken <span class="nr">16 · Bautagebuch</span></h2>
+    <div class="row">
+      <div><label for="s-date">Datum</label><input id="s-date" type="date"></div>
+      <div><label for="s-typ">Einheit</label>
+        <select id="s-typ">
+          <option>Kraft A</option><option>Kraft B</option>
+          <option>Ausdauer locker</option><option>Ausdauer zügig</option>
+          <option>Wanderung / Rad</option>
+        </select></div>
+      <div class="fix"><button class="act" id="s-add">Buchen</button></div>
+    </div>
+    <div id="slist" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- ================= WOCHE ================= -->
+<section id="woche" hidden>
+  <div class="card">
+    <h2>Wochen-Abnahme <span class="nr">17 · Prüfung</span></h2>
+    <div id="weekly"></div>
+  </div>
+  <div class="card">
+    <h2>Wenn es klemmt <span class="nr">18 · Mängelbehebung</span></h2>
+    <div id="trouble"></div>
+  </div>
+  <div class="card">
+    <h2>Daten <span class="nr">19 · Archiv</span></h2>
+    <div class="row">
+      <div class="fix"><button class="act ghost" id="exp">Export (JSON)</button></div>
+      <div class="fix"><button class="act ghost" id="res">Alles zurücksetzen</button></div>
+    </div>
+    <textarea id="expout" style="width:100%;height:0;border:0;opacity:0;padding:0" readonly></textarea>
+  </div>
+</section>
+
+<p class="foot">Alle Daten bleiben in dieser App. Kein Konto, keine Cloud, keine Werbung für Pulver.</p>
+</main>
+
+<script>
+/* ---------------- Speicher ---------------- */
+const KEY='abnehmprojekt:state:v1';
+let mem=null;
+const DB={
+  async load(){
+    try{const r=await window.storage.get(KEY); return r?JSON.parse(r.value):null}
+    catch(e){return mem}
+  },
+  async save(s){
+    mem=s;
+    try{await window.storage.set(KEY,JSON.stringify(s))}catch(e){}
+  },
+  async clear(){ mem=null; try{await window.storage.delete(KEY)}catch(e){} }
+};
+
+let S={profile:null,weights:[],meals:{},workouts:[],habits:{}};
+
+/* ---------------- Hilfen ---------------- */
+const $=id=>document.getElementById(id);
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const heute=iso(new Date());
+const nf=(n,d=0)=>n.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const dDE=s=>{const p=s.split('-');return p[2]+'.'+p[1]+'.'};
+const tage=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const addTage=(s,n)=>iso(new Date(new Date(s).getTime()+n*864e5));
+
+/* ---------------- Lebensmittel (je 100 g/ml) ---------------- */
+const FOODS=[
+ ['Magerquark',67,12,0.3,4],['Skyr natur',63,11,0.2,4],['Hüttenkäse',98,12,4.3,3],
+ ['Naturjoghurt 1,5%',50,4.8,1.5,4.7],['Milch 1,5%',47,3.4,1.5,4.9],['Harzer Käse',125,30,0.7,0],
+ ['Gouda 45%',356,25,28,0],['Ei (Stück ~60g)',78,6.5,5.5,0.4],['Hähnchenbrust roh',105,23,1.5,0],
+ ['Putenbrust Aufschnitt',105,20,2,1],['Rinderhack 5%',137,21,5,0],['Schweineschnitzel',110,22,2,0],
+ ['Lachs',208,20,13,0],['Seelachsfilet',81,18,0.9,0],['Thunfisch (Wasser)',108,24,1,0],
+ ['Schinken gekocht',110,19,3.5,1],['Leberkäse',290,13,26,2],['Bratwurst',330,13,30,1],
+ ['Vollkornbrot',210,7,1.5,40],['Brötchen Weizen',270,8,1.5,53],['Haferflocken',370,13,7,59],
+ ['Nudeln gekocht',150,5,1,29],['Reis gekocht',130,2.7,0.3,28],['Kartoffeln gekocht',77,2,0.1,17],
+ ['Pommes frites',290,3.5,14,36],['Linsen gekocht',116,9,0.4,20],['Kidneybohnen',110,8,0.5,16],
+ ['Apfel',52,0.3,0.2,12],['Banane',89,1.1,0.3,21],['Beeren gemischt',45,1,0.4,8],
+ ['Tomaten',18,0.9,0.2,3],['Gurke',15,0.7,0.1,2],['Paprika',31,1,0.3,6],
+ ['Brokkoli',34,2.8,0.4,7],['Blumenkohl',25,1.9,0.3,5],['Karotten',41,0.9,0.2,10],
+ ['Salatmischung',15,1.4,0.2,1.5],['Zwiebel',40,1.1,0.1,9],['Sauerkraut',19,1.5,0.1,3],
+ ['Olivenöl',884,0,100,0],['Butter',717,0.9,81,0.6],['Rapsöl',884,0,100,0],
+ ['Mandeln',579,21,50,22],['Walnüsse',654,15,65,14],['Erdnussbutter',588,25,50,20],
+ ['Avocado',160,2,15,9],['Frischkäse 16%',150,10,11,3],['Mayonnaise',680,1,75,2],
+ ['Schokolade Vollmilch',535,7,30,58],['Chips',536,6,34,50],['Kuchen Rührteig',380,5,18,50],
+ ['Bier (ml)',43,0.5,0,3.6],['Weißwein (ml)',82,0,0,2.6],['Apfelsaft (ml)',46,0.1,0.1,11],
+ ['Cola (ml)',42,0,0,10.6],['Cola zero (ml)',0.3,0,0,0],['Kaffee schwarz (ml)',2,0.1,0,0],
+ ['Proteinpulver',380,80,4,5],['Käsespätzle',280,10,15,26],['Pizza Salami',280,12,13,28],
+ ['Döner',215,15,10,17],['Currywurst m. Pommes',260,8,17,19],['Maultaschen',200,10,9,20]
+];
+const foodMap={}; FOODS.forEach(f=>foodMap[f[0].toLowerCase()]=f);
+
+/* ---------------- Rechnen ---------------- */
+function bmr(p){
+  const b=10*p.w+6.25*p.h-5*p.age;
+  return p.sex==='m'? b+5 : b-161;
+}
+function calc(){
+  const p=S.profile; if(!p) return null;
+  const grund=bmr(p), tdee=grund*p.pal;
+  const floor = p.sex==='m'?1600:1300;
+  let ziel=Math.round((tdee-p.def)/10)*10;
+  let gekappt=false;
+  if(ziel<floor){ziel=floor;gekappt=true}
+  const defReal=tdee-ziel;
+  const kgWoche=defReal*7/7700;
+  const diff=p.w-p.z;
+  const wochen=Math.max(1,Math.round(diff/kgWoche));
+  const ende=addTage(p.start,wochen*7);
+  const eiw=Math.round(p.z*1.8), fett=Math.round(p.z*0.8);
+  const kh=Math.max(50,Math.round((ziel-eiw*4-fett*9)/4));
+  const bmi=p.w/Math.pow(p.h/100,2), bmiZ=p.z/Math.pow(p.h/100,2);
+  return {grund,tdee,ziel,defReal,kgWoche,diff,wochen,ende,eiw,fett,kh,bmi,bmiZ,gekappt,floor};
+}
+function sollGewicht(datum){
+  const c=calc(); if(!c) return null;
+  const t=tage(S.profile.start,datum);
+  if(t<0) return S.profile.w;
+  return Math.max(S.profile.z, S.profile.w - c.kgWoche/7*t);
+}
+function schnitt7(){
+  if(!S.weights.length) return null;
+  const grenze=addTage(heute,-6);
+  const w=S.weights.filter(x=>x.d>=grenze);
+  const q=w.length?w:S.weights.slice(-3);
+  return q.reduce((a,b)=>a+b.v,0)/q.length;
+}
+
+/* ---------------- Rendern: Planung ---------------- */
+function renderPlan(){
+  const c=calc();
+  if(!c){$('kpis').innerHTML='<div class="kpi"><div class="lb">Status</div><div class="vl">—</div></div>';return}
+  $('kpis').innerHTML=[
+    k('Grundumsatz',nf(c.grund)+' <small>kcal</small>'),
+    k('Gesamtumsatz',nf(c.tdee)+' <small>kcal</small>'),
+    k('Tagesziel',nf(c.ziel)+' <small>kcal</small>','sig'),
+    k('Defizit',nf(c.defReal)+' <small>kcal/Tag</small>'),
+    k('Tempo',nf(c.kgWoche,2)+' <small>kg/Woche</small>'),
+    k('BMI jetzt → Ziel',nf(c.bmi,1)+' <small>→ '+nf(c.bmiZ,1)+'</small>')
+  ].join('');
+  $('planText').innerHTML=
+    `<p style="margin:0 0 8px;font-size:14px">Um <b>${nf(c.diff,1)} kg</b> abzunehmen, musst du rund
+     <b>${nf(c.diff*7700)} kcal</b> einsparen. Bei ${nf(c.defReal)} kcal Defizit pro Tag brauchst du dafür
+     etwa <b>${c.wochen} Wochen</b> – fertig am <b>${dDE(c.ende)}${c.ende.slice(0,4)}</b>.</p>`
+    + (c.gekappt?`<div class="warn">Das gewünschte Tempo würde dich unter ${c.floor} kcal drücken. Dort wird es unnötig zäh und du verlierst Muskulatur, also ist das Ziel auf ${c.floor} kcal begrenzt. Mehr Bewegung ist der bessere Hebel als noch weniger Essen.</div>`:'');
+
+  const s7=schnitt7(), p=S.profile;
+  const ist=s7??p.w;
+  const pct=Math.max(0,Math.min(100,(p.w-ist)/(p.w-p.z)*100));
+  $('pbar').style.width=pct+'%';
+  $('pbA').textContent=nf(p.w,1)+' kg · '+dDE(p.start)+p.start.slice(0,4);
+  $('pbB').textContent=nf(p.z,1)+' kg · '+dDE(c.ende)+c.ende.slice(0,4);
+  $('pbText').innerHTML=`<b>${nf(pct)} % geschafft.</b> Noch ${nf(Math.max(0,ist-p.z),1)} kg bis zum Ziel.`;
+  $('stand').textContent='Stand: '+dDE(heute)+heute.slice(0,4)+'  ·  '+nf(ist,1)+' kg  ·  '+nf(pct)+' %';
+}
+const k=(l,v,cls='')=>`<div class="kpi ${cls}"><div class="lb">${l}</div><div class="vl">${v}</div></div>`;
+
+/* ---------------- Rendern: Gewicht + Diagramm ---------------- */
+function renderGewicht(){
+  const c=calc(), p=S.profile;
+  // Liste
+  const ws=[...S.weights].sort((a,b)=>b.d.localeCompare(a.d));
+  $('wlist').innerHTML = ws.length? '<table><tr><th>Datum</th><th style="text-align:right">Gewicht</th><th style="text-align:right">Soll</th><th></th></tr>'+
+    ws.map((w,i)=>{
+      const so=sollGewicht(w.d);
+      const ab=so!=null? w.v-so : null;
+      return `<tr><td class="mono">${dDE(w.d)}${w.d.slice(2,4)}</td>
+      <td class="num">${nf(w.v,1)} kg</td>
+      <td class="num" style="color:${ab==null?'':(ab<=0.2?'var(--pruef)':'var(--signal)')}">${ab==null?'—':(ab>0?'+':'')+nf(ab,1)}</td>
+      <td style="text-align:right"><button class="x" data-wd="${w.d}" aria-label="Löschen">×</button></td></tr>`}).join('')+'</table>'
+    : '<p class="hint">Noch keine Messung eingetragen.</p>';
+  $('wlist').querySelectorAll('[data-wd]').forEach(b=>b.onclick=async()=>{
+    S.weights=S.weights.filter(x=>x.d!==b.dataset.wd); await DB.save(S); renderAll();
+  });
+
+  // Kennwerte
+  const s7=schnitt7();
+  const letzte=ws[0];
+  const vor7=S.weights.filter(x=>x.d<=addTage(heute,-7)).sort((a,b)=>b.d.localeCompare(a.d))[0];
+  const soll=sollGewicht(heute);
+  $('wkpis').innerHTML=[
+    k('7-Tage-Schnitt',s7?nf(s7,1)+' <small>kg</small>':'—'),
+    k('Letzte Messung',letzte?nf(letzte.v,1)+' <small>kg</small>':'—'),
+    k('Sollwert heute',soll?nf(soll,1)+' <small>kg</small>':'—'),
+    k('Abweichung',(s7&&soll)?((s7-soll>0?'+':'')+nf(s7-soll,1)+' <small>kg</small>'):'—',(s7&&soll&&s7-soll>0.5)?'sig':'')
+  ].join('');
+  drawChart();
+}
+
+function drawChart(){
+  const el=$('chart'); const p=S.profile, c=calc();
+  if(!p||!c){el.innerHTML='<p class="hint">Erst Plan aufstellen.</p>';return}
+  const W=680,H=300,L=44,R=16,T=22,B=34;
+  const x0=new Date(p.start).getTime();
+  const x1=new Date(c.ende).getTime();
+  const ymax=Math.ceil((p.w+1.5)), ymin=Math.floor(p.z-1.5);
+  const X=t=>L+(t-x0)/(x1-x0)*(W-L-R);
+  const Y=v=>T+(ymax-v)/(ymax-ymin)*(H-T-B);
+  let g='';
+  // Raster
+  for(let v=ymin;v<=ymax;v+=2){
+    g+=`<line x1="${L}" y1="${Y(v)}" x2="${W-R}" y2="${Y(v)}" stroke="var(--grid)" stroke-width="1"/>
+        <text x="${L-7}" y="${Y(v)+4}" font-size="10" fill="#3B5A78" text-anchor="end">${v}</text>`;
+  }
+  const wochen=c.wochen;
+  for(let i=0;i<=wochen;i+=Math.max(1,Math.ceil(wochen/6))){
+    const t=x0+i*7*864e5;
+    g+=`<line x1="${X(t)}" y1="${T}" x2="${X(t)}" y2="${H-B}" stroke="var(--grid)"/>
+        <text x="${X(t)}" y="${H-B+16}" font-size="10" fill="#3B5A78" text-anchor="middle">KW+${i}</text>`;
+  }
+  // Toleranzband ±1 kg
+  g+=`<polygon points="${X(x0)},${Y(p.w+1)} ${X(x1)},${Y(p.z+1)} ${X(x1)},${Y(p.z-1)} ${X(x0)},${Y(p.w-1)}"
+      fill="#12283F" opacity="0.06"/>`;
+  // Soll-Linie
+  g+=`<line x1="${X(x0)}" y1="${Y(p.w)}" x2="${X(x1)}" y2="${Y(p.z)}" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="7 4"/>`;
+  // Maßkette links (Signature)
+  const mx=L-26;
+  g+=`<line x1="${mx}" y1="${Y(p.w)}" x2="${mx}" y2="${Y(p.z)}" stroke="var(--signal)" stroke-width="1.2"/>
+      <line x1="${mx-4}" y1="${Y(p.w)}" x2="${mx+4}" y2="${Y(p.w)}" stroke="var(--signal)" stroke-width="1.2"/>
+      <line x1="${mx-4}" y1="${Y(p.z)}" x2="${mx+4}" y2="${Y(p.z)}" stroke="var(--signal)" stroke-width="1.2"/>
+      <text x="${mx-6}" y="${(Y(p.w)+Y(p.z))/2}" font-size="11" fill="var(--signal)" text-anchor="middle"
+        transform="rotate(-90 ${mx-6} ${(Y(p.w)+Y(p.z))/2})">${nf(c.diff,1)} kg</text>`;
+  // Ist-Werte
+  const ws=[...S.weights].sort((a,b)=>a.d.localeCompare(b.d))
+    .filter(w=>new Date(w.d).getTime()>=x0-864e5);
+  if(ws.length){
+    const pts=ws.map(w=>`${X(new Date(w.d).getTime())},${Y(w.v)}`).join(' ');
+    g+=`<polyline points="${pts}" fill="none" stroke="var(--pruef)" stroke-width="2"/>`;
+    ws.forEach(w=>{g+=`<circle cx="${X(new Date(w.d).getTime())}" cy="${Y(w.v)}" r="3" fill="var(--pruef)"/>`});
+  }
+  g+=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="none" stroke="var(--rule)"/>`;
+  g+=`<text x="${W-R}" y="${T-7}" font-size="10" fill="#3B5A78" text-anchor="end">— — Soll · ▬ Ist · Band ±1 kg</text>`;
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Verlauf Soll gegen Ist"><rect width="${W}" height="${H}" fill="#fff"/>${g}</svg>`;
+}
+
+/* ---------------- Rendern: Ernährung ---------------- */
+function renderEssen(){
+  const c=calc();
+  $('mkpis').innerHTML = c? [
+    k('Kalorien',nf(c.ziel),'sig'),
+    k('Eiweiß',c.eiw+' <small>g</small>'),
+    k('Fett',c.fett+' <small>g</small>'),
+    k('Kohlenhydrate',c.kh+' <small>g</small>')
+  ].join('') : '<div class="kpi"><div class="lb">Status</div><div class="vl">—</div></div>';
+
+  const d=$('e-date').value||heute;
+  const list=S.meals[d]||[];
+  $('elist').innerHTML = list.length? '<table><tr><th>Position</th><th style="text-align:right">Menge</th><th style="text-align:right">kcal</th><th style="text-align:right">EW</th><th></th></tr>'+
+    list.map((e,i)=>`<tr><td>${e.n}</td><td class="num">${e.m?nf(e.m)+' g':'—'}</td>
+      <td class="num">${nf(e.kcal)}</td><td class="num">${nf(e.p,0)}</td>
+      <td style="text-align:right"><button class="x" data-ei="${i}" aria-label="Löschen">×</button></td></tr>`).join('')+'</table>'
+    : '<p class="hint">Für diesen Tag ist noch nichts gebucht.</p>';
+  $('elist').querySelectorAll('[data-ei]').forEach(b=>b.onclick=async()=>{
+    S.meals[d].splice(+b.dataset.ei,1); await DB.save(S); renderEssen();
+  });
+  const sum=list.reduce((a,e)=>({kcal:a.kcal+e.kcal,p:a.p+e.p,f:a.f+e.f,kh:a.kh+e.kh}),{kcal:0,p:0,f:0,kh:0});
+  $('ekpis').innerHTML=[
+    k('Gebucht',nf(sum.kcal)+' <small>kcal</small>'),
+    k('Rest',c?nf(c.ziel-sum.kcal)+' <small>kcal</small>':'—',(c&&sum.kcal>c.ziel)?'sig':''),
+    k('Eiweiß',nf(sum.p)+' <small>g'+(c?' / '+c.eiw:'')+'</small>'),
+    k('Fett / KH',nf(sum.f)+' <small>/ '+nf(sum.kh)+' g</small>')
+  ].join('');
+}
+
+function renderMealplan(){
+  const c=calc();
+  const skala = c? c.ziel/1900 : 1;
+  const m=(t,items,kcal)=>`<div style="padding:10px 0;border-bottom:1px solid var(--grid)">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <b class="disp" style="font-size:15px;text-transform:uppercase">${t}</b>
+      <span class="mono" style="font-size:12px;color:var(--ink-2)">${nf(kcal*skala)} kcal</span></div>
+    <div style="font-size:14px;margin-top:3px">${items}</div></div>`;
+  $('mealplan').innerHTML =
+    m('Frühstück','250 g Magerquark mit 40 g Haferflocken, einer Handvoll Beeren und Zimt. Dazu Kaffee schwarz.',430)+
+    m('Mittag','200 g Hähnchenbrust oder Seelachs, 200 g Kartoffeln, so viel Gemüse wie draufpasst, 1 EL Rapsöl.',600)+
+    m('Nachmittag','1 Apfel und 20 g Mandeln. Oder Harzer Käse, wenn der Eiweißwert noch fehlt.',230)+
+    m('Abend','3 Eier oder 150 g Hüttenkäse, 2 Scheiben Vollkornbrot, Gurke, Tomate, Paprika.',560)+
+    m('Puffer','Rund 80 kcal bleiben übrig – für Milch im Kaffee oder ein Stück Schokolade.',80)+
+    `<p class="hint" style="margin:12px 0 0">Die Angaben skalieren mit deinem Tagesziel. Kantine oder Baustelle: nimm das Fleisch oder den Fisch, doppelt Gemüse, halbe Beilage, und die Soße daneben statt drüber.</p>`;
+
+  $('shop').innerHTML=`
+  <div style="font-size:14px">
+  <p style="margin:0 0 6px"><span class="tag ok">Eiweiß</span> Magerquark, Skyr, Hüttenkäse, Harzer, Eier, Hähnchenbrust, Putenaufschnitt, Seelachs, Lachs, Thunfisch im Wasser, Linsen.</p>
+  <p style="margin:0 0 6px"><span class="tag">Gemüse</span> Brokkoli, Blumenkohl, Karotten, Paprika, Gurke, Tomaten, Salat, Zwiebeln, Sauerkraut. Tiefkühlgemüse ist völlig in Ordnung.</p>
+  <p style="margin:0 0 6px"><span class="tag">Beilagen</span> Kartoffeln, Vollkornbrot, Haferflocken, Naturreis, Vollkornnudeln.</p>
+  <p style="margin:0 0 6px"><span class="tag">Fett</span> Rapsöl, Olivenöl, Mandeln, Walnüsse. Sparsam abmessen, nicht schütten.</p>
+  <p style="margin:0"><span class="tag sig">Nicht mitnehmen</span> Chips, Kekse, Softdrinks, Saft, Bierkasten. Was nicht im Haus ist, isst du abends auch nicht.</p>
+  </div>`;
+}
+
+/* ---------------- Rendern: Sport ---------------- */
+const KRAFT_A=[
+ ['Kniebeuge (Goblet oder frei)','3 Sätze × 10–12 Wdh.'],
+ ['Liegestütz (notfalls an der Kante)','3 × 8–15'],
+ ['Rudern einarmig mit Hantel/Kanister','3 × 10–12 je Seite'],
+ ['Hüftheben (Glute Bridge)','3 × 15'],
+ ['Unterarmstütz (Plank)','3 × 30–45 s']
+];
+const KRAFT_B=[
+ ['Rumänisches Kreuzheben','3 × 10–12'],
+ ['Schulterdrücken','3 × 10'],
+ ['Ausfallschritte','3 × 10 je Bein'],
+ ['Latzug oder Klimmzug negativ','3 × 8'],
+ ['Seitstütz','3 × 25 s je Seite']
+];
+const AUSD=[
+ ['Zügiges Gehen, 45–60 min','Bestes Verhältnis von Aufwand zu Ertrag. Unterhaltung muss noch möglich sein.'],
+ ['Rad oder Ergometer, 40 min','Gelenkschonend, ideal an Tagen nach dem Krafttraining.'],
+ ['Wanderung im Schwarzwald, 1,5–3 h','Einmal pro Woche als lange Einheit. Zählt doppelt: Kalorien und Kopf.'],
+ ['4 × 3 min zügig / 2 min locker','Nur wenn du dich gut fühlst und die Grundlage steht.']
+];
+function renderSport(){
+  $('plan-sport').innerHTML=`<table>
+    <tr><th>Tag</th><th>Einheit</th></tr>
+    <tr><td class="mono">Mo</td><td>Kraft A</td></tr>
+    <tr><td class="mono">Di</td><td>Gehen 45 min</td></tr>
+    <tr><td class="mono">Mi</td><td>frei oder lockeres Rad</td></tr>
+    <tr><td class="mono">Do</td><td>Kraft B</td></tr>
+    <tr><td class="mono">Fr</td><td>Gehen 45 min <span class="tag">vor der Probe</span></td></tr>
+    <tr><td class="mono">Sa</td><td>lange Einheit: Wanderung oder Rad</td></tr>
+    <tr><td class="mono">So</td><td>Ruhe</td></tr></table>`;
+  const üb=(arr)=>'<table><tr><th>Übung</th><th style="text-align:right">Umfang</th></tr>'+
+    arr.map(u=>`<tr><td>${u[0]}</td><td class="num">${u[1]}</td></tr>`).join('')+'</table>'+
+    '<p class="hint" style="margin:8px 0 0">2 min Pause zwischen den Sätzen. Steigere alle 2 Wochen Gewicht oder Wiederholungen – nur dann bleibt der Reiz.</p>';
+  $('ka').innerHTML=üb(KRAFT_A);
+  $('kb').innerHTML=üb(KRAFT_B);
+  $('aus').innerHTML='<table><tr><th>Einheit</th><th>Hinweis</th></tr>'+
+    AUSD.map(a=>`<tr><td style="width:38%"><b>${a[0]}</b></td><td class="hint">${a[1]}</td></tr>`).join('')+'</table>';
+  renderSlist();
+}
+function renderSlist(){
+  const ws=[...S.workouts].sort((a,b)=>b.d.localeCompare(a.d)).slice(0,20);
+  const woche=S.workouts.filter(w=>w.d>=addTage(heute,-6)).length;
+  $('slist').innerHTML=`<div class="kpis" style="margin-bottom:10px">${k('Letzte 7 Tage',woche+' <small>Einheiten</small>',woche>=3?'':'sig')}${k('Gesamt',S.workouts.length+' <small>Einheiten</small>')}</div>`+
+   (ws.length?'<table><tr><th>Datum</th><th>Einheit</th><th></th></tr>'+ws.map((w,i)=>
+    `<tr><td class="mono">${dDE(w.d)}${w.d.slice(2,4)}</td><td>${w.t}</td>
+     <td style="text-align:right"><button class="x" data-si="${w.d}|${w.t}" aria-label="Löschen">×</button></td></tr>`).join('')+'</table>'
+    :'<p class="hint">Noch nichts gebucht.</p>');
+  $('slist').querySelectorAll('[data-si]').forEach(b=>b.onclick=async()=>{
+    const [d,t]=b.dataset.si.split('|');
+    const i=S.workouts.findIndex(w=>w.d===d&&w.t===t);
+    if(i>-1)S.workouts.splice(i,1); await DB.save(S); renderSlist();
+  });
+}
+
+/* ---------------- Rendern: Woche ---------------- */
+const HABITS=[
+ ['h1','Jeden Morgen gewogen','Zahlen ohne Messreihe sind Meinung.'],
+ ['h2','Zwei Krafteinheiten geschafft','Das ist die Bewehrung. Ohne sie verlierst du Substanz statt Fett.'],
+ ['h3','Eiweißziel an mindestens 5 Tagen erreicht',''],
+ ['h4','Keine flüssigen Kalorien','Kaffee schwarz, Wasser, Tee, Light-Getränke.'],
+ ['h5','Mindestens 3× 45 min gegangen',''],
+ ['h6','7 Stunden Schlaf im Schnitt','Zu wenig Schlaf treibt den Appetit hoch.'],
+ ['h7','Kein Naschzeug im Haus','']
+];
+function kwKey(){
+  const d=new Date(); const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()-((d.getDay()+6)%7));
+  return iso(t);
+}
+function renderWoche(){
+  const wk=kwKey(); S.habits[wk]=S.habits[wk]||{};
+  $('weekly').innerHTML=`<p class="hint" style="margin:0 0 10px">Woche ab ${dDE(wk)}${wk.slice(0,4)}. Sonntagabend durchgehen, abhaken, fertig.</p>`+
+    HABITS.map(h=>`<label class="check ${S.habits[wk][h[0]]?'done':''}" style="text-transform:none;letter-spacing:0;font-family:inherit;font-size:inherit;color:inherit">
+      <input type="checkbox" data-h="${h[0]}" ${S.habits[wk][h[0]]?'checked':''}>
+      <span><span class="t">${h[1]}</span>${h[2]?`<br><span class="s">${h[2]}</span>`:''}</span></label>`).join('');
+  $('weekly').querySelectorAll('[data-h]').forEach(cb=>cb.onchange=async()=>{
+    S.habits[wk][cb.dataset.h]=cb.checked; await DB.save(S); renderWoche();
+  });
+
+  $('trouble').innerHTML=`<div style="font-size:14px">
+   <p style="margin:0 0 9px"><b>Zwei Wochen keine Bewegung auf der Waage.</b> Erst prüfen, ob wirklich alles gebucht wurde – Öl, Soßen und Getränke fallen am häufigsten unter den Tisch. Wenn ja: 200 kcal runter oder eine Ausdauereinheit drauf. Nicht beides.</p>
+   <p style="margin:0 0 9px"><b>Gewicht springt über Nacht 1,5 kg hoch.</b> Das ist Wasser, nach salzigem Essen oder Kohlenhydraten. Deshalb zählt nur der 7-Tage-Schnitt.</p>
+   <p style="margin:0 0 9px"><b>Abends Heißhunger.</b> Meist zu wenig Eiweiß tagsüber oder ein zu großes Defizit. Verlege Kalorien vom Mittag auf den Abend – die Uhrzeit ist egal, die Tagessumme zählt.</p>
+   <p style="margin:0 0 9px"><b>Ausgeplant: Fest, Geburtstag, Konzert.</b> Ein Tag über dem Ziel wirft nichts um. Am Folgetag normal weiterfahren, nicht kompensieren und nicht hungern.</p>
+   <p style="margin:0"><b>Ziel erreicht.</b> Kalorien über vier Wochen in 100er-Schritten auf den Erhaltungsumsatz hochfahren, Krafttraining bleibt. Weiterwiegen: bei 2 kg über dem Ziel greift wieder das Defizit.</p>
+   </div>`;
+}
+
+/* ---------------- Ereignisse ---------------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['plan','gewicht','essen','sport','woche'].forEach(s=>$(s).hidden=(s!==b.dataset.t));
+  window.scrollTo({top:0});
+});
+
+$('calc').onclick=async()=>{
+  S.profile={
+    sex:$('f-sex').value, age:+$('f-age').value, h:+$('f-h').value,
+    w:+$('f-w').value, z:+$('f-z').value, pal:+$('f-pal').value,
+    def:+$('f-def').value, start:$('f-start').value||heute
+  };
+  if(!S.weights.some(x=>x.d===S.profile.start))
+    S.weights.push({d:S.profile.start,v:S.profile.w});
+  await DB.save(S); renderAll();
+};
+
+$('w-add').onclick=async()=>{
+  const d=$('w-date').value||heute, v=parseFloat($('w-val').value);
+  if(!v){$('w-val').focus();return}
+  S.weights=S.weights.filter(x=>x.d!==d); S.weights.push({d,v});
+  $('w-val').value=''; await DB.save(S); renderAll();
+};
+
+function addFood(){
+  const name=$('e-food').value.trim(); const m=+$('e-amt').value||0;
+  const f=foodMap[name.toLowerCase()];
+  if(!f||!m){$('e-food').focus();return}
+  const d=$('e-date').value||heute; S.meals[d]=S.meals[d]||[];
+  S.meals[d].push({n:f[0],m,kcal:f[1]*m/100,p:f[2]*m/100,f:f[3]*m/100,kh:f[4]*m/100});
+  $('e-food').value=''; DB.save(S); renderEssen();
+}
+$('e-add').onclick=addFood;
+$('e-food').addEventListener('keydown',e=>{if(e.key==='Enter')addFood()});
+$('e-addfree').onclick=()=>{
+  const kc=+$('e-kcal').value; if(!kc)return;
+  const d=$('e-date').value||heute; S.meals[d]=S.meals[d]||[];
+  S.meals[d].push({n:'freie Buchung',m:0,kcal:kc,p:0,f:0,kh:0});
+  $('e-kcal').value=''; DB.save(S); renderEssen();
+};
+$('e-date').onchange=renderEssen;
+
+$('s-add').onclick=async()=>{
+  S.workouts.push({d:$('s-date').value||heute,t:$('s-typ').value});
+  await DB.save(S); renderSlist();
+};
+
+$('exp').onclick=()=>{
+  const ta=$('expout'); ta.style.height='140px'; ta.style.opacity='1';
+  ta.style.border='1px solid var(--rule)'; ta.style.padding='8px';
+  ta.style.fontFamily='IBM Plex Mono, monospace'; ta.style.fontSize='11px';
+  ta.value=JSON.stringify(S); ta.select();
+};
+$('res').onclick=async()=>{
+  if(!confirm('Wirklich alle Eintragungen löschen? Das lässt sich nicht rückgängig machen.'))return;
+  S={profile:null,weights:[],meals:{},workouts:[],habits:{}};
+  await DB.clear(); location.reload();
+};
+
+/* ---------------- Start ---------------- */
+function renderAll(){renderPlan();renderGewicht();renderEssen();renderMealplan();renderSport();renderWoche()}
+
+(async()=>{
+  $('foods').innerHTML=FOODS.map(f=>`<option value="${f[0]}">`).join('');
+  ['f-start','w-date','e-date','s-date'].forEach(i=>$(i).value=heute);
+  const s=await DB.load();
+  if(s){S=Object.assign(S,s);
+    if(S.profile){const p=S.profile;
+      $('f-sex').value=p.sex;$('f-age').value=p.age;$('f-h').value=p.h;
+      $('f-w').value=p.w;$('f-z').value=p.z;$('f-pal').value=p.pal;
+      $('f-def').value=p.def;$('f-start').value=p.start;}
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
