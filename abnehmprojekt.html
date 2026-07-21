@@ -345,14 +345,14 @@ const KEY='abnehmprojekt:state:v1';
 let mem=null;
 const DB={
   async load(){
-    try{const r=await window.storage.get(KEY); return r?JSON.parse(r.value):null}
+    try{const r=localStorage.getItem(KEY); return r?JSON.parse(r):mem}
     catch(e){return mem}
   },
   async save(s){
     mem=s;
-    try{await window.storage.set(KEY,JSON.stringify(s))}catch(e){}
+    try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}
   },
-  async clear(){ mem=null; try{await window.storage.delete(KEY)}catch(e){} }
+  async clear(){ mem=null; try{localStorage.removeItem(KEY)}catch(e){} }
 };
 
 let S={profile:null,weights:[],meals:{},workouts:[],habits:{}};

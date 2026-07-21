@@ -13,11 +13,12 @@ Alles steckt in einer einzigen HTML-Datei — kein Build, kein Server, kein Kont
 
 ## Nutzung
 
-Die Datei [`abnehmprojekt.html`](abnehmprojekt.html) einfach im Browser öffnen.
+Die Datei [`abnehmprojekt.html`](abnehmprojekt.html) einfach im Browser öffnen –
+oder online über GitHub Pages nutzen.
 
-> **Hinweis zur Speicherung:** Die App nutzt aktuell die `window.storage`-API (Claude-Artifact-Umgebung).
-> Als lokale Datei im Browser geöffnet werden Daten dadurch nicht dauerhaft gespeichert.
-> Für eigenständigen Betrieb müsste die Speicherung auf `localStorage` umgestellt werden.
+> **Speicherung:** Alle Eingaben werden im `localStorage` des jeweiligen Browsers gespeichert.
+> Die Daten bleiben lokal auf deinem Gerät und werden **nicht** übertragen oder auf GitHub abgelegt.
+> Ein anderer Browser oder Gerät hat einen eigenen, separaten Datenstand.
 
 ## Hinweis
 
