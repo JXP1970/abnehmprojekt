@@ -281,7 +281,7 @@ svg text{font-family:"IBM Plex Mono",monospace}
 <section id="sport" hidden>
   <div class="card">
     <h2>Wochenprogramm <span class="nr">12 · Bauablauf</span></h2>
-    <p class="hint" style="margin:0 0 12px">Zwei Krafteinheiten, zwei bis drei lockere Ausdauereinheiten. Kraft mit Kurzhanteln oder Körpergewicht, geht komplett zuhause.</p>
+    <p class="hint" style="margin:0 0 12px">Zwei Krafteinheiten am Multifunktionsgerät (Seilzug/Butterfly), zwei bis drei Ausdauereinheiten über Rudergerät, Cross-Laufgerät, Nordic Walking, Boxsack oder Sprungseil. Alles komplett zuhause bzw. vor der Tür.</p>
     <div id="plan-sport"></div>
   </div>
 
@@ -307,8 +307,9 @@ svg text{font-family:"IBM Plex Mono",monospace}
       <div><label for="s-typ">Einheit</label>
         <select id="s-typ">
           <option>Kraft A</option><option>Kraft B</option>
-          <option>Ausdauer locker</option><option>Ausdauer zügig</option>
-          <option>Wanderung / Rad</option>
+          <option>Rudergerät</option><option>Cross-Laufgerät</option>
+          <option>Nordic Walking</option><option>Boxsack</option>
+          <option>Sprungseil</option><option>Wanderung / Rad</option>
         </select></div>
       <div class="fix"><button class="act" id="s-add">Buchen</button></div>
     </div>
@@ -592,34 +593,37 @@ function renderMealplan(){
 
 /* ---------------- Rendern: Sport ---------------- */
 const KRAFT_A=[
- ['Kniebeuge (Goblet oder frei)','3 Sätze × 10–12 Wdh.'],
- ['Liegestütz (notfalls an der Kante)','3 × 8–15'],
- ['Rudern einarmig mit Hantel/Kanister','3 × 10–12 je Seite'],
- ['Hüftheben (Glute Bridge)','3 × 15'],
- ['Unterarmstütz (Plank)','3 × 30–45 s']
+ ['Latzug zur Brust (Seilzug)','3 Sätze × 10–12 Wdh.'],
+ ['Beinpresse oder Goblet-Kniebeuge','3 × 12'],
+ ['Brustpresse / Butterfly (Seilzug)','3 × 10–12'],
+ ['Sitzendes Rudern am Seilzug','3 × 12'],
+ ['Bauchpresse am Seilzug oder Plank','3 × 15 · Plank 3 × 30–45 s']
 ];
 const KRAFT_B=[
- ['Rumänisches Kreuzheben','3 × 10–12'],
- ['Schulterdrücken','3 × 10'],
+ ['Rumänisches Kreuzheben (Hantel/Stange)','3 × 10–12'],
+ ['Brustdrücken am Gerät','3 × 10'],
  ['Ausfallschritte','3 × 10 je Bein'],
- ['Latzug oder Klimmzug negativ','3 × 8'],
+ ['Face Pull / hoher Seilzug','3 × 12–15'],
+ ['Bizeps + Trizeps am Seilzug (Superset)','je 3 × 12'],
  ['Seitstütz','3 × 25 s je Seite']
 ];
 const AUSD=[
- ['Zügiges Gehen, 45–60 min','Bestes Verhältnis von Aufwand zu Ertrag. Unterhaltung muss noch möglich sein.'],
- ['Rad oder Ergometer, 40 min','Gelenkschonend, ideal an Tagen nach dem Krafttraining.'],
- ['Wanderung im Schwarzwald, 1,5–3 h','Einmal pro Woche als lange Einheit. Zählt doppelt: Kalorien und Kopf.'],
- ['4 × 3 min zügig / 2 min locker','Nur wenn du dich gut fühlst und die Grundlage steht.']
+ ['Rudergerät, 20–30 min','Ganzkörper-Ausdauer mit hohem Verbrauch. Gleichmäßig ziehen, Unterhaltung muss noch gehen.'],
+ ['Cross-Laufgerät, 30–40 min','Gelenkschonend, ideal an Tagen nach dem Krafttraining. Arme aktiv mitschieben.'],
+ ['Nordic Walking, 45–75 min','Draußen, der Oberkörper arbeitet mit. Beste lange Einheit fürs Wochenende – zählt doppelt: Kalorien und Kopf.'],
+ ['Boxsack, 5–8 Runden × 3 min','Intervall für Kondition und Stressabbau. 1 min locker zwischen den Runden, sauber decken.'],
+ ['Sprungseil, 8–10 × 1 min / 1 min Pause','Kurz und intensiv, top für die Kondition. Am Anfang kürzere Intervalle, dann steigern.'],
+ ['Ruder-/Cross-Intervalle, 4 × 3 min zügig / 2 min locker','Nur wenn du dich gut fühlst und die Grundlage steht.']
 ];
 function renderSport(){
   $('plan-sport').innerHTML=`<table>
     <tr><th>Tag</th><th>Einheit</th></tr>
-    <tr><td class="mono">Mo</td><td>Kraft A</td></tr>
-    <tr><td class="mono">Di</td><td>Gehen 45 min</td></tr>
-    <tr><td class="mono">Mi</td><td>frei oder lockeres Rad</td></tr>
-    <tr><td class="mono">Do</td><td>Kraft B</td></tr>
-    <tr><td class="mono">Fr</td><td>Gehen 45 min <span class="tag">vor der Probe</span></td></tr>
-    <tr><td class="mono">Sa</td><td>lange Einheit: Wanderung oder Rad</td></tr>
+    <tr><td class="mono">Mo</td><td>Kraft A <span class="tag">Multigerät</span></td></tr>
+    <tr><td class="mono">Di</td><td>Rudergerät 25 min</td></tr>
+    <tr><td class="mono">Mi</td><td>Nordic Walking 45–60 min</td></tr>
+    <tr><td class="mono">Do</td><td>Kraft B <span class="tag">Multigerät</span></td></tr>
+    <tr><td class="mono">Fr</td><td>Boxsack + Sprungseil (Intervalle)</td></tr>
+    <tr><td class="mono">Sa</td><td>lange Einheit: Nordic Walking oder Crosstrainer</td></tr>
     <tr><td class="mono">So</td><td>Ruhe</td></tr></table>`;
   const üb=(arr)=>'<table><tr><th>Übung</th><th style="text-align:right">Umfang</th></tr>'+
     arr.map(u=>`<tr><td>${u[0]}</td><td class="num">${u[1]}</td></tr>`).join('')+'</table>'+
@@ -651,7 +655,7 @@ const HABITS=[
  ['h2','Zwei Krafteinheiten geschafft','Das ist die Bewehrung. Ohne sie verlierst du Substanz statt Fett.'],
  ['h3','Eiweißziel an mindestens 5 Tagen erreicht',''],
  ['h4','Keine flüssigen Kalorien','Kaffee schwarz, Wasser, Tee, Light-Getränke.'],
- ['h5','Mindestens 3× 45 min gegangen',''],
+ ['h5','Mindestens 3 Ausdauereinheiten','Rudergerät, Cross-Laufgerät, Nordic Walking, Boxsack oder Sprungseil.'],
  ['h6','7 Stunden Schlaf im Schnitt','Zu wenig Schlaf treibt den Appetit hoch.'],
  ['h7','Kein Naschzeug im Haus','']
 ];
