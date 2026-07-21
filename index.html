@@ -170,6 +170,17 @@ details.rz[open]>summary{border-bottom:1px solid var(--rule)}
 .ampel .zeile.rot>b{color:var(--signal)}
 .ampel .zeile .txt{font-size:14px}
 .ampel .zeile .txt b{color:var(--ink)}
+
+/* ---------- Umschalter (Personen / Menüwoche) ---------- */
+.segrow{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:12px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;margin-left:6px}
+.seg button{border:0;background:var(--paper-2);padding:5px 12px;font-family:"Oswald",sans-serif;
+  font-size:13px;letter-spacing:.04em;color:var(--ink-2);cursor:pointer}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.seg button:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
 svg text{font-family:"IBM Plex Mono",monospace}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -291,13 +302,13 @@ svg text{font-family:"IBM Plex Mono",monospace}
 
   <div class="card">
     <h2>Rezepte <span class="nr">11 · Bauanleitung</span></h2>
-    <p class="hint" style="margin:0 0 10px">Tippe ein Rezept an, um Zutaten und Zubereitung zu sehen. Alle Mengen für <b>eine Portion</b>.</p>
+    <p class="hint" style="margin:0 0 10px">Passend zur oben gewählten Menü-Woche. Tippe ein Rezept an. Die Mengen passen sich an die Personenzahl an, die Nährwerte gelten <b>pro Person</b>.</p>
     <div id="recipes"></div>
   </div>
 
   <div class="card">
     <h2>Einkaufsliste <span class="nr">12 · Materialbedarf</span></h2>
-    <p class="hint" style="margin:0 0 10px">Alles für den 7-Tage-Plan oben, für eine Person. Nach Regalen sortiert.</p>
+    <p class="hint" style="margin:0 0 10px">Passt sich an Menü-Woche und Personenzahl oben an. Nach Regalen sortiert.</p>
     <div id="shop"></div>
   </div>
 
@@ -425,7 +436,7 @@ const DB={
   async clear(){ mem=null; try{localStorage.removeItem(KEY)}catch(e){} }
 };
 
-let S={profile:null,weights:[],meals:{},workouts:[],habits:{}};
+let S={profile:null,weights:[],meals:{},workouts:[],habits:{},personen:2,menuwoche:'A'};
 
 /* ---------------- Hilfen ---------------- */
 const $=id=>document.getElementById(id);
@@ -642,37 +653,70 @@ const AMPEL=[
  ['rot','Selten – kleine Mengen, bewusst genießen',
   '<b>Süßes & Snacks:</b> Schokolade, Kekse, Kuchen, Chips. <b>Flüssige Kalorien:</b> Saft, Softdrinks, Bier, Wein, Latte – der größte versteckte Hebel. <b>Fettes:</b> Bratwurst, Leberkäse, Mayonnaise, Frittiertes, Pommes.']
 ];
+/* Zutaten strukturiert: [Menge|null, Einheit, Text] – skaliert mit Personenzahl */
 const RECIPES=[
- {id:'quark',cat:'Frühstück',name:'Quark-Powerschale',kcal:430,ew:40,zeit:'5 Min',
-  zutaten:['250 g Magerquark','40 g Haferflocken','100 g Beeren (TK ok)','1 TL Zimt','Schuss Wasser oder Milch'],
+ // ---- Woche A ----
+ {id:'quark',wk:'A',cat:'Frühstück',name:'Quark-Powerschale',kcal:430,ew:40,zeit:'5 Min',
+  zutaten:[[250,'g','Magerquark'],[40,'g','Haferflocken'],[100,'g','Beeren (TK ok)'],[1,'TL','Zimt'],[null,'','Schuss Wasser oder Milch']],
   schritte:['Quark in eine Schüssel geben und mit etwas Wasser oder Milch cremig rühren.','Haferflocken und Zimt unterrühren.','Beeren daraufgeben – fertig.']},
- {id:'ruehrei',cat:'Frühstück',name:'Rührei-Brot',kcal:450,ew:28,zeit:'10 Min',
-  zutaten:['3 Eier','2 Scheiben Vollkornbrot','1 Tomate, etwas Gurke','1 TL Öl','Salz, Pfeffer'],
+ {id:'ruehrei',wk:'A',cat:'Frühstück',name:'Rührei-Brot',kcal:450,ew:28,zeit:'10 Min',
+  zutaten:[[3,'','Eier'],[2,'Scheiben','Vollkornbrot'],[1,'','Tomate'],[null,'','etwas Gurke'],[1,'TL','Öl'],[null,'','Salz, Pfeffer']],
   schritte:['Eier verquirlen und salzen.','In beschichteter Pfanne mit 1 TL Öl bei mittlerer Hitze stocken lassen, dabei rühren.','Mit Brot und rohem Gemüse servieren.']},
- {id:'oats',cat:'Frühstück',name:'Overnight-Skyr',kcal:420,ew:30,zeit:'3 Min (abends)',
-  zutaten:['200 g Skyr','40 g Haferflocken','1 Apfel','1 TL Zimt','100 ml Wasser'],
+ {id:'oats',wk:'A',cat:'Frühstück',name:'Overnight-Skyr',kcal:420,ew:30,zeit:'3 Min (abends)',
+  zutaten:[[200,'g','Skyr'],[40,'g','Haferflocken'],[1,'','Apfel'],[1,'TL','Zimt'],[100,'ml','Wasser']],
   schritte:['Apfel würfeln, alles in ein Glas geben.','Verrühren und über Nacht in den Kühlschrank.','Morgens direkt löffelfertig.']},
- {id:'haehnchen',cat:'Mittag',name:'Hähnchen-Kartoffel-Pfanne',kcal:640,ew:50,zeit:'25 Min',
-  zutaten:['200 g Hähnchenbrust','250 g Kartoffeln','300 g Gemüse (Paprika, Zucchini, Zwiebel)','1 EL Rapsöl','Salz, Pfeffer, Paprikapulver'],
+ {id:'haehnchen',wk:'A',cat:'Mittag',name:'Hähnchen-Kartoffel-Pfanne',kcal:640,ew:50,zeit:'25 Min',
+  zutaten:[[200,'g','Hähnchenbrust'],[250,'g','Kartoffeln'],[300,'g','Gemüse (Paprika, Zucchini, Zwiebel)'],[1,'EL','Rapsöl'],[null,'','Salz, Pfeffer, Paprikapulver']],
   schritte:['Kartoffeln würfeln und 10 Min in Salzwasser vorkochen, abgießen.','Hähnchen in Streifen schneiden, in 1 EL Öl kräftig anbraten, herausnehmen.','Gemüse und Kartoffeln in der Pfanne 8 Min braten.','Hähnchen zurück in die Pfanne, würzen, kurz durchschwenken.']},
- {id:'seelachs',cat:'Mittag',name:'Ofen-Seelachs mit Gemüse',kcal:600,ew:42,zeit:'35 Min',
-  zutaten:['200 g Seelachsfilet','200 g Kartoffeln','300 g Gemüse (Paprika, Zucchini, Tomate)','1 EL Olivenöl','½ Zitrone','Salz, Pfeffer, Kräuter'],
+ {id:'seelachs',wk:'A',cat:'Mittag',name:'Ofen-Seelachs mit Gemüse',kcal:600,ew:42,zeit:'35 Min',
+  zutaten:[[200,'g','Seelachsfilet'],[200,'g','Kartoffeln'],[300,'g','Gemüse (Paprika, Zucchini, Tomate)'],[1,'EL','Olivenöl'],[0.5,'','Zitrone'],[null,'','Salz, Pfeffer, Kräuter']],
   schritte:['Ofen auf 200 °C vorheizen.','Kartoffeln und Gemüse in Spalten schneiden, mit Öl, Salz und Pfeffer mischen, aufs Blech, 20 Min backen.','Fisch salzen, mit Zitrone beträufeln, dazulegen und weitere 12–15 Min backen.']},
- {id:'linsen',cat:'Mittag',name:'Linsen-Hack-Eintopf',kcal:640,ew:48,zeit:'30 Min',
-  zutaten:['150 g Rinderhack 5 %','80 g rote Linsen','1 Karotte, 1 Zwiebel','200 g stückige Tomaten (Dose)','400 ml Brühe','Salz, Pfeffer, Paprikapulver'],
+ {id:'linsen',wk:'A',cat:'Mittag',name:'Linsen-Hack-Eintopf',kcal:640,ew:48,zeit:'30 Min',
+  zutaten:[[150,'g','Rinderhack 5 %'],[80,'g','rote Linsen'],[1,'','Karotte'],[1,'','Zwiebel'],[200,'g','stückige Tomaten (Dose)'],[400,'ml','Brühe'],[null,'','Salz, Pfeffer, Paprikapulver']],
   schritte:['Zwiebel und Karotte würfeln, mit dem Hack in einem Topf anbraten.','Linsen, Tomaten und Brühe dazugeben.','20 Min köcheln, bis die Linsen weich sind, kräftig würzen.']},
- {id:'pute',cat:'Mittag',name:'Puten-Reispfanne',kcal:620,ew:50,zeit:'25 Min',
-  zutaten:['200 g Putenbrust','60 g Reis (roh)','300 g Gemüse (Brokkoli, Paprika)','1 EL Öl','2 EL Sojasauce'],
+ {id:'pute',wk:'A',cat:'Mittag',name:'Puten-Reispfanne',kcal:620,ew:50,zeit:'25 Min',
+  zutaten:[[200,'g','Putenbrust'],[60,'g','Reis (roh)'],[300,'g','Gemüse (Brokkoli, Paprika)'],[1,'EL','Öl'],[2,'EL','Sojasauce']],
   schritte:['Reis nach Packungsangabe kochen.','Pute in Streifen scharf anbraten, herausnehmen.','Gemüse 6–8 Min braten, Reis und Pute dazu, mit Sojasauce abschmecken.']},
- {id:'huetten',cat:'Abend',name:'Hüttenkäse-Brotteller',kcal:500,ew:35,zeit:'5 Min',
-  zutaten:['200 g Hüttenkäse','2 Scheiben Vollkornbrot','1 Paprika, Gurke, Tomaten','Schnittlauch','Salz, Pfeffer'],
+ {id:'huetten',wk:'A',cat:'Abend',name:'Hüttenkäse-Brotteller',kcal:500,ew:35,zeit:'5 Min',
+  zutaten:[[200,'g','Hüttenkäse'],[2,'Scheiben','Vollkornbrot'],[1,'','Paprika'],[null,'','Gurke, Tomaten'],[null,'','Schnittlauch, Salz, Pfeffer']],
   schritte:['Hüttenkäse mit Salz, Pfeffer und Schnittlauch verrühren.','Auf das Brot streichen.','Rohes Gemüse in Sticks dazu.']},
- {id:'omelett',cat:'Abend',name:'Gemüse-Omelett mit Harzer',kcal:470,ew:55,zeit:'15 Min',
-  zutaten:['3 Eier','100 g Harzer Käse','200 g Gemüse (Champignons, Paprika, Spinat)','1 TL Öl','Salz, Pfeffer'],
+ {id:'omelett',wk:'A',cat:'Abend',name:'Gemüse-Omelett mit Harzer',kcal:470,ew:55,zeit:'15 Min',
+  zutaten:[[3,'','Eier'],[100,'g','Harzer Käse'],[200,'g','Gemüse (Champignons, Paprika, Spinat)'],[1,'TL','Öl'],[null,'','Salz, Pfeffer']],
   schritte:['Gemüse in 1 TL Öl anbraten.','Eier verquirlen, darübergeben und stocken lassen.','Harzer in Scheiben auflegen, Omelett zusammenklappen, kurz ziehen lassen.']},
- {id:'thunsalat',cat:'Abend',name:'Thunfisch-Kraftsalat',kcal:520,ew:48,zeit:'10 Min',
-  zutaten:['1 Dose Thunfisch im Wasser (150 g)','2 hartgekochte Eier','100 g Kidneybohnen','gemischter Salat, Tomate, Gurke','1 EL Olivenöl + Essig'],
-  schritte:['Salat und Gemüse in eine große Schüssel geben.','Thunfisch abtropfen lassen, mit Bohnen und geviertelten Eiern daraufgeben.','Öl und Essig darüber, salzen, gut durchmischen.']}
+ {id:'thunsalat',wk:'A',cat:'Abend',name:'Thunfisch-Kraftsalat',kcal:520,ew:48,zeit:'10 Min',
+  zutaten:[[1,'Dose','Thunfisch im Wasser (150 g)'],[2,'','hartgekochte Eier'],[100,'g','Kidneybohnen'],[null,'','gemischter Salat, Tomate, Gurke'],[1,'EL','Olivenöl + Essig']],
+  schritte:['Salat und Gemüse in eine große Schüssel geben.','Thunfisch abtropfen lassen, mit Bohnen und geviertelten Eiern daraufgeben.','Öl und Essig darüber, salzen, gut durchmischen.']},
+ // ---- Woche B ----
+ {id:'bhafer',wk:'B',cat:'Frühstück',name:'Haferbrei mit Banane',kcal:440,ew:28,zeit:'8 Min',
+  zutaten:[[40,'g','Haferflocken'],[200,'ml','Milch 1,5 %'],[1,'','Banane'],[150,'g','Skyr'],[1,'TL','Zimt']],
+  schritte:['Haferflocken mit der Milch aufkochen und 3–4 Min quellen lassen.','Banane in Scheiben schneiden und unterrühren.','In eine Schüssel geben, Skyr und Zimt darauf.']},
+ {id:'bspiegel',wk:'B',cat:'Frühstück',name:'Spiegelei-Brot',kcal:450,ew:27,zeit:'10 Min',
+  zutaten:[[3,'','Eier'],[2,'Scheiben','Vollkornbrot'],[null,'','Tomate, Gurke'],[1,'TL','Öl'],[null,'','Salz, Pfeffer']],
+  schritte:['Eier in 1 TL Öl als Spiegeleier braten, leicht salzen.','Brot bereitlegen, Gemüse in Scheiben schneiden.','Spiegeleier auf das Brot legen, mit Gemüse servieren.']},
+ {id:'bbeeren',wk:'B',cat:'Frühstück',name:'Beeren-Quark mit Nüssen',kcal:400,ew:34,zeit:'5 Min',
+  zutaten:[[250,'g','Magerquark'],[100,'g','Beeren'],[20,'g','Walnüsse'],[1,'TL','Honig'],[null,'','Schuss Wasser']],
+  schritte:['Quark mit etwas Wasser cremig rühren.','Beeren und Honig unterheben.','Walnüsse grob hacken und darüberstreuen.']},
+ {id:'brind',wk:'B',cat:'Mittag',name:'Rinderstreifen mit Reis',kcal:630,ew:48,zeit:'25 Min',
+  zutaten:[[180,'g','mageres Rind (Steakstreifen)'],[60,'g','Reis (roh)'],[300,'g','Gemüse (Paprika, Zwiebel)'],[1,'EL','Öl'],[null,'','Salz, Pfeffer, Paprikapulver']],
+  schritte:['Reis nach Packung kochen.','Rindstreifen in 1 EL Öl scharf anbraten, herausnehmen.','Gemüse 6–8 Min braten, Fleisch und Reis dazu, würzen.']},
+ {id:'bsuess',wk:'B',cat:'Mittag',name:'Ofen-Hähnchen mit Süßkartoffel',kcal:650,ew:50,zeit:'35 Min',
+  zutaten:[[200,'g','Hähnchenbrust'],[250,'g','Süßkartoffel'],[300,'g','Gemüse (Paprika, Brokkoli)'],[1,'EL','Olivenöl'],[null,'','Salz, Pfeffer, Paprikapulver']],
+  schritte:['Ofen auf 200 °C vorheizen.','Süßkartoffel und Gemüse in Stücke schneiden, mit Öl und Gewürzen mischen, aufs Blech, 15 Min.','Hähnchen würzen, dazulegen und weitere 18–20 Min backen.']},
+ {id:'bbauern',wk:'B',cat:'Mittag',name:'Kartoffel-Ei-Pfanne',kcal:600,ew:35,zeit:'20 Min',
+  zutaten:[[250,'g','gekochte Kartoffeln'],[3,'','Eier'],[100,'g','Kochschinken'],[1,'','Zwiebel'],[1,'EL','Öl'],[null,'','Salz, Pfeffer, Schnittlauch']],
+  schritte:['Kartoffeln in Scheiben, Zwiebel würfeln, in 1 EL Öl goldbraun braten.','Schinken in Streifen dazugeben.','Eier verquirlen, darübergeben und stocken lassen, würzen.']},
+ {id:'blachs',wk:'B',cat:'Mittag',name:'Lachs mit Ofengemüse',kcal:640,ew:38,zeit:'30 Min',
+  zutaten:[[150,'g','Lachsfilet'],[200,'g','Kartoffeln'],[300,'g','Gemüse (Zucchini, Paprika, Tomate)'],[1,'EL','Olivenöl'],[0.5,'','Zitrone'],[null,'','Salz, Pfeffer']],
+  schritte:['Ofen auf 200 °C. Kartoffeln und Gemüse mit Öl, Salz, Pfeffer aufs Blech, 20 Min.','Lachs salzen, mit Zitrone beträufeln, dazulegen.','Weitere 12–15 Min backen.']},
+ {id:'bhksalat',wk:'B',cat:'Abend',name:'Bunter Hüttenkäse-Salat',kcal:470,ew:34,zeit:'10 Min',
+  zutaten:[[200,'g','Hüttenkäse'],[null,'','gemischter Salat, Paprika, Gurke, Tomate'],[1,'Scheibe','Vollkornbrot'],[15,'g','Kürbiskerne'],[1,'EL','Olivenöl + Essig']],
+  schritte:['Salat und Gemüse in eine Schüssel geben.','Hüttenkäse darauf, mit Öl und Essig anmachen.','Kürbiskerne darüberstreuen, mit Brot servieren.']},
+ {id:'bthunquark',wk:'B',cat:'Abend',name:'Thunfisch-Quark-Brot',kcal:470,ew:45,zeit:'8 Min',
+  zutaten:[[1,'Dose','Thunfisch im Wasser (150 g)'],[100,'g','Magerquark'],[2,'Scheiben','Vollkornbrot'],[null,'','Gurke, Tomate'],[null,'','Salz, Pfeffer, Zitrone']],
+  schritte:['Thunfisch abtropfen, mit Magerquark und Gewürzen verrühren.','Auf das Brot streichen.','Mit Gurke und Tomate belegen.']},
+ {id:'bchamp',wk:'B',cat:'Abend',name:'Omelett mit Champignons & Schinken',kcal:470,ew:38,zeit:'15 Min',
+  zutaten:[[3,'','Eier'],[100,'g','Champignons'],[50,'g','Kochschinken'],[1,'Scheibe','Vollkornbrot'],[1,'TL','Öl'],[null,'','Salz, Pfeffer']],
+  schritte:['Champignons in Scheiben in 1 TL Öl anbraten, Schinken dazu.','Eier verquirlen, darübergeben, stocken lassen.','Zusammenklappen, mit Brot servieren.']}
 ];
 const recMap={}; RECIPES.forEach(r=>recMap[r.id]=r);
 const SNACKS=[
@@ -682,47 +726,86 @@ const SNACKS=[
  ['Gemüsesticks + 100 g Hüttenkäse als Dip','~120 kcal'],
  ['Proteinshake (30 g Pulver in Wasser)','~115 kcal']
 ];
-const WEEKPLAN=[
- ['Mo','quark','haehnchen','huetten','Apfel + 20 g Mandeln'],
- ['Di','ruehrei','linsen','thunsalat','150 g Skyr mit Beeren'],
- ['Mi','oats','pute','omelett','Harzer Käse mit Tomate'],
- ['Do','quark','seelachs','huetten','Proteinshake'],
- ['Fr','ruehrei','haehnchen','thunsalat','Gemüsesticks + Hüttenkäse'],
- ['Sa','oats','linsen','omelett','Apfel + 20 g Mandeln'],
- ['So','ruehrei','pute','huetten','150 g Skyr mit Beeren']
-];
-const SHOP=[
- ['Eiweiß',['Magerquark 500 g','Skyr 750 g','Hüttenkäse 600 g','Harzer Käse 3 Packungen','Eier 20 Stück (2 Kartons)','Hähnchenbrust 400 g','Putenbrust 400 g','Rinderhack 5 % 300 g','Seelachsfilet 200 g','Thunfisch im Wasser 2 Dosen']],
- ['Beilagen & Vorrat',['Haferflocken 500 g','Vollkornbrot 1 Laib','Kartoffeln 1 kg','Reis 1 Packung','Rote Linsen 1 Packung','Kidneybohnen 1 Dose','Stückige Tomaten 1 Dose']],
- ['Gemüse & Obst',['Paprika 5 Stück','Zucchini 2','Brokkoli 1 Kopf (oder TK 500 g)','Champignons 250 g','Tomaten 500 g','Gurken 2','Karotten 500 g','Zwiebeln 3','Salat 2 Köpfe / Beutel','Spinat 200 g (TK ok)','Beeren 500 g (TK)','Äpfel 5']],
- ['Fett & Würze',['Raps- und Olivenöl','Mandeln 100 g','Sojasauce, Essig','Zitrone 1','Brühe (Pulver)','Salz, Pfeffer, Paprikapulver, Zimt','Proteinpulver (optional)']]
-];
+/* Einkauf: [Text, Menge|null, Einheit] pro Person und Woche; null = Vorrat, skaliert nicht */
+const WEEKS={
+ A:{plan:[
+   ['Mo','quark','haehnchen','huetten','Apfel + 20 g Mandeln'],
+   ['Di','ruehrei','linsen','thunsalat','150 g Skyr mit Beeren'],
+   ['Mi','oats','pute','omelett','Harzer Käse mit Tomate'],
+   ['Do','quark','seelachs','huetten','Proteinshake'],
+   ['Fr','ruehrei','haehnchen','thunsalat','Gemüsesticks + Hüttenkäse'],
+   ['Sa','oats','linsen','omelett','Apfel + 20 g Mandeln'],
+   ['So','ruehrei','pute','huetten','150 g Skyr mit Beeren']],
+  shop:[
+   ['Eiweiß',[['Magerquark',500,'g'],['Skyr',700,'g'],['Hüttenkäse',700,'g'],['Harzer Käse',3,'Pk.'],['Eier',19,'Stück'],['Hähnchenbrust',400,'g'],['Putenbrust',400,'g'],['Rinderhack 5 %',300,'g'],['Seelachsfilet',200,'g'],['Thunfisch im Wasser',2,'Dosen']]],
+   ['Beilagen & Vorrat',[['Haferflocken',200,'g'],['Vollkornbrot',1,'Laib'],['Kartoffeln',700,'g'],['Reis',150,'g'],['Rote Linsen',160,'g'],['Kidneybohnen',1,'Dose'],['Stückige Tomaten',2,'Dosen']]],
+   ['Gemüse & Obst',[['Paprika',4,'Stück'],['Zucchini',1,''],['Brokkoli',1,'Kopf'],['Champignons',200,'g'],['Tomaten',400,'g'],['Gurken',2,''],['Karotten',200,'g'],['Zwiebeln',3,''],['Salat',1,'Kopf'],['Spinat',100,'g'],['Beeren',350,'g'],['Äpfel',4,'']]],
+   ['Fett & Würze',[['Raps- und Olivenöl',null,''],['Mandeln',100,'g'],['Sojasauce, Essig',null,''],['Zitrone',1,'Stück'],['Brühe (Pulver)',null,''],['Salz, Pfeffer, Paprikapulver, Zimt',null,''],['Proteinpulver (optional)',null,'']]]]},
+ B:{plan:[
+   ['Mo','bhafer','brind','bhksalat','Apfel + 20 g Mandeln'],
+   ['Di','bspiegel','bsuess','bthunquark','150 g Skyr mit Beeren'],
+   ['Mi','bbeeren','bbauern','bchamp','Harzer Käse mit Tomate'],
+   ['Do','bhafer','blachs','bhksalat','Proteinshake'],
+   ['Fr','bspiegel','brind','bthunquark','Gemüsesticks + Hüttenkäse'],
+   ['Sa','bbeeren','bsuess','bchamp','Apfel + 20 g Mandeln'],
+   ['So','bspiegel','bbauern','bhksalat','150 g Skyr mit Beeren']],
+  shop:[
+   ['Eiweiß',[['Magerquark',700,'g'],['Skyr',600,'g'],['Hüttenkäse',700,'g'],['Harzer Käse',1,'Pk.'],['Eier',21,'Stück'],['Hähnchenbrust',400,'g'],['mageres Rind (Steakstreifen)',360,'g'],['Kochschinken',300,'g'],['Lachsfilet',150,'g'],['Thunfisch im Wasser',2,'Dosen']]],
+   ['Beilagen & Vorrat',[['Haferflocken',80,'g'],['Vollkornbrot',1,'Laib'],['Milch 1,5 %',400,'ml'],['Kartoffeln',700,'g'],['Süßkartoffel',500,'g'],['Reis',120,'g']]],
+   ['Gemüse & Obst',[['Paprika',4,'Stück'],['Zucchini',1,''],['Brokkoli',1,'Kopf'],['Champignons',200,'g'],['Tomaten',400,'g'],['Gurken',2,''],['Zwiebeln',2,''],['Salat',1,'Kopf'],['Bananen',2,''],['Beeren',350,'g'],['Äpfel',2,'']]],
+   ['Fett & Würze',[['Raps- und Olivenöl',null,''],['Walnüsse',40,'g'],['Mandeln',100,'g'],['Kürbiskerne',50,'g'],['Honig',null,''],['Essig',null,''],['Zitrone',1,'Stück'],['Salz, Pfeffer, Paprikapulver, Zimt',null,''],['Proteinpulver (optional)',null,'']]]]}
+};
+const fmtQ=n=>{ if(n==null) return ''; const v=+n;
+  if(Number.isInteger(v)) return ''+v;
+  const m={0.5:'½',1.5:'1½',2.5:'2½'}; return m[v]||(''+v).replace('.',',');
+};
+const ingLine=(z,per)=>{ const [q,u,t]=z; if(q==null) return t;
+  const qs=fmtQ(q*per); return (u? qs+' '+u : qs)+' '+t; };
+const fmtShop=(n,u)=>{ if(n==null) return '';
+  let v=n, unit=u;
+  if(u==='g'&&v>=1000){v=v/1000;unit='kg'}
+  if(u==='ml'&&v>=1000){v=v/1000;unit='l'}
+  const num=Number.isInteger(v)?''+v:(''+(Math.round(v*10)/10)).replace('.',',');
+  return num+(unit?' '+unit:''); };
 function renderKueche(){
+  const per=S.personen||2, wk=(S.menuwoche==='B')?'B':'A', WK=WEEKS[wk];
   const catH=t=>`<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin:14px 0 6px;font-weight:500">${t}</div>`;
 
   $('ampel').innerHTML='<div class="ampel">'+AMPEL.map(a=>
     `<div class="zeile ${a[0]}"><b>${a[1]}</b><div class="txt">${a[2]}</div></div>`).join('')+'</div>';
 
-  $('weekmenu').innerHTML='<table><tr><th>Tag</th><th>Frühstück</th><th>Mittag</th><th>Abend</th><th>Snack</th></tr>'+
-    WEEKPLAN.map(w=>`<tr><td class="mono"><b>${w[0]}</b></td><td>${recMap[w[1]].name}</td><td>${recMap[w[2]].name}</td><td>${recMap[w[3]].name}</td><td class="hint">${w[4]}</td></tr>`).join('')+'</table>'+
-    '<p class="hint" style="margin:8px 0 0">Das ergibt rund 1.700–1.900 kcal am Tag mit viel Eiweiß – Kaffeemilch oder ein Nachschlag Gemüse ist da schon drin. Die Snacks sind Kür: nur essen, wenn du wirklich Hunger hast.</p>';
+  const ctrl=`<div class="segrow">
+    <span>Personen <span class="seg">
+      <button data-per="1" aria-pressed="${per===1}">1</button>
+      <button data-per="2" aria-pressed="${per===2}">2</button></span></span>
+    <span>Menü <span class="seg">
+      <button data-wk="A" aria-pressed="${wk==='A'}">Woche A</button>
+      <button data-wk="B" aria-pressed="${wk==='B'}">Woche B</button></span></span>
+  </div>`;
+  $('weekmenu').innerHTML=ctrl+'<table><tr><th>Tag</th><th>Frühstück</th><th>Mittag</th><th>Abend</th><th>Snack</th></tr>'+
+    WK.plan.map(w=>`<tr><td class="mono"><b>${w[0]}</b></td><td>${recMap[w[1]].name}</td><td>${recMap[w[2]].name}</td><td>${recMap[w[3]].name}</td><td class="hint">${w[4]}</td></tr>`).join('')+'</table>'+
+    '<p class="hint" style="margin:8px 0 0">Pro Person rund 1.700–1.900 kcal am Tag mit viel Eiweiß. Deine Frau isst dieselben Gerichte – wenn sie weniger braucht, nimmt sie einfach etwas weniger Beilage. Snacks sind Kür, nur bei echtem Hunger.</p>';
+  $('weekmenu').querySelectorAll('[data-per]').forEach(b=>b.onclick=async()=>{S.personen=+b.dataset.per;await DB.save(S);renderKueche();});
+  $('weekmenu').querySelectorAll('[data-wk]').forEach(b=>b.onclick=async()=>{S.menuwoche=b.dataset.wk;await DB.save(S);renderKueche();});
 
+  const perLbl=per===1?'1 Person':per+' Personen';
   $('recipes').innerHTML = ['Frühstück','Mittag','Abend'].map(cat=>
-    catH(cat)+RECIPES.filter(r=>r.cat===cat).map(r=>
+    catH(cat)+RECIPES.filter(r=>r.wk===wk&&r.cat===cat).map(r=>
       `<details class="rz"><summary><span class="rzn">${r.name}</span><span class="rzm">${r.kcal} kcal · ${r.ew} g EW · ${r.zeit}</span></summary>
       <div class="rzbody">
-        <h4>Zutaten · 1 Portion</h4>
-        <ul>${r.zutaten.map(z=>`<li>${z}</li>`).join('')}</ul>
+        <h4>Zutaten · ${perLbl}</h4>
+        <ul>${r.zutaten.map(z=>`<li>${ingLine(z,per)}</li>`).join('')}</ul>
         <h4>Zubereitung</h4>
         <ol>${r.schritte.map(s=>`<li>${s}</li>`).join('')}</ol>
       </div></details>`).join('')).join('')+
-    catH('Snacks · ohne Kochen')+
+    catH('Snacks · ohne Kochen (pro Person)')+
     '<table>'+SNACKS.map(s=>`<tr><td>${s[0]}</td><td class="hint" style="text-align:right">${s[1]}</td></tr>`).join('')+'</table>';
 
-  $('shop').innerHTML = SHOP.map(g=>
+  $('shop').innerHTML = `<p class="hint" style="margin:0 0 10px">Menü <b>Woche ${wk}</b> · für <b>${perLbl}</b> · eine Woche. Vorratssachen (Öl, Gewürze) reichen meist länger.</p>`+
+    WK.shop.map(g=>
     `<div style="margin-bottom:12px"><div class="tag ok" style="margin-bottom:6px">${g[0]}</div>`+
-    '<table>'+g[1].map(item=>`<tr><td>${item}</td></tr>`).join('')+'</table></div>').join('')+
-    '<div class="warn">Was nicht im Haus ist, isst du abends auch nicht – die rote Ampel-Spalte bleibt im Laden.</div>';
+    '<table>'+g[1].map(it=>`<tr><td>${it[0]}</td><td class="num">${fmtShop(it[1]==null?null:it[1]*per,it[2])}</td></tr>`).join('')+'</table></div>').join('')+
+    '<div class="warn">Was nicht im Haus ist, isst ihr abends auch nicht – die rote Ampel-Spalte bleibt im Laden.</div>';
 }
 
 /* ---------------- Rendern: Sport ---------------- */
