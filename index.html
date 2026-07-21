@@ -301,7 +301,12 @@ svg text{font-family:"IBM Plex Mono",monospace}
   </div>
 
   <div class="card">
-    <h2>Einheit abhaken <span class="nr">16 · Bautagebuch</span></h2>
+    <h2>Boxsack · Runden <span class="nr">16 · Schlagplan</span></h2>
+    <div id="box"></div>
+  </div>
+
+  <div class="card">
+    <h2>Einheit abhaken <span class="nr">17 · Bautagebuch</span></h2>
     <div class="row">
       <div><label for="s-date">Datum</label><input id="s-date" type="date"></div>
       <div><label for="s-typ">Einheit</label>
@@ -320,15 +325,15 @@ svg text{font-family:"IBM Plex Mono",monospace}
 <!-- ================= WOCHE ================= -->
 <section id="woche" hidden>
   <div class="card">
-    <h2>Wochen-Abnahme <span class="nr">17 · Prüfung</span></h2>
+    <h2>Wochen-Abnahme <span class="nr">18 · Prüfung</span></h2>
     <div id="weekly"></div>
   </div>
   <div class="card">
-    <h2>Wenn es klemmt <span class="nr">18 · Mängelbehebung</span></h2>
+    <h2>Wenn es klemmt <span class="nr">19 · Mängelbehebung</span></h2>
     <div id="trouble"></div>
   </div>
   <div class="card">
-    <h2>Daten <span class="nr">19 · Archiv</span></h2>
+    <h2>Daten <span class="nr">20 · Archiv</span></h2>
     <div class="row">
       <div class="fix"><button class="act ghost" id="exp">Export (JSON)</button></div>
       <div class="fix"><button class="act ghost" id="res">Alles zurücksetzen</button></div>
@@ -615,6 +620,16 @@ const AUSD=[
  ['Sprungseil, 8–10 × 1 min / 1 min Pause','Kurz und intensiv, top für die Kondition. Am Anfang kürzere Intervalle, dann steigern.'],
  ['Ruder-/Cross-Intervalle, 4 × 3 min zügig / 2 min locker','Nur wenn du dich gut fühlst und die Grundlage steht.']
 ];
+const BOX_RUNDEN=[
+ ['Aufwärmen · 5 min','Sprungseil locker, Arme kreisen, ein paar leichte Schläge ohne Druck. Erst wenn du warm bist, kommt Tempo.'],
+ ['Runde 1 · Jab','Nur die Führhand. Stand, Deckung oben, Kinn runter. Technik vor Kraft.'],
+ ['Runde 2 · Jab–Cross (1–2)','Die Gerade aus der Hüfte, hintere Ferse dreht mit. Nach jedem Schlag die Hand zurück ans Kinn.'],
+ ['Runde 3 · 1–2–Haken','Zweimal gerade, dann linker Haken. Danach Deckung hoch und wieder von vorn.'],
+ ['Runde 4 · Bewegung','Schlagen, dann seitlich abrollen und wieder rein. Nicht stehenbleiben, Kopf aus der Linie.'],
+ ['Runde 5 · Cardio-Mix','30 s zügige Kombis, 15 s Kniebeugen oder Ausfallschritte, im Wechsel. Puls hoch.'],
+ ['Runde 6 · frei & zügig','Alles was sitzt, sauber und schnell. Tempo halten, Deckung nicht fallen lassen.'],
+ ['Ausklang · 5 min','Locker ausschütteln, Schultern und Nacken dehnen, tief durchatmen.']
+];
 function renderSport(){
   $('plan-sport').innerHTML=`<table>
     <tr><th>Tag</th><th>Einheit</th></tr>
@@ -632,6 +647,10 @@ function renderSport(){
   $('kb').innerHTML=üb(KRAFT_B);
   $('aus').innerHTML='<table><tr><th>Einheit</th><th>Hinweis</th></tr>'+
     AUSD.map(a=>`<tr><td style="width:38%"><b>${a[0]}</b></td><td class="hint">${a[1]}</td></tr>`).join('')+'</table>';
+  $('box').innerHTML='<p class="hint" style="margin:0 0 10px">3 min pro Runde, 1 min Pause. Immer mit Bandagen oder Boxhandschuhen – das schützt Handgelenk und Knöchel. Am Anfang 3–4 Runden, dann Woche für Woche steigern.</p>'+
+    '<table><tr><th>Block</th><th>Inhalt</th></tr>'+
+    BOX_RUNDEN.map(b=>`<tr><td style="width:34%"><b>${b[0]}</b></td><td class="hint">${b[1]}</td></tr>`).join('')+'</table>'+
+    '<div class="warn">Fäuste fest geschlossen, Ellbogen nie ganz durchstrecken. Bei Schulter- oder Handgelenkproblemen erst nur leicht antäuschen. Technik geht immer vor Tempo.</div>';
   renderSlist();
 }
 function renderSlist(){
