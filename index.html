@@ -306,7 +306,12 @@ svg text{font-family:"IBM Plex Mono",monospace}
   </div>
 
   <div class="card">
-    <h2>Einheit abhaken <span class="nr">17 · Bautagebuch</span></h2>
+    <h2>Sprungseil · Intervalle <span class="nr">17 · Taktschlag</span></h2>
+    <div id="seil"></div>
+  </div>
+
+  <div class="card">
+    <h2>Einheit abhaken <span class="nr">18 · Bautagebuch</span></h2>
     <div class="row">
       <div><label for="s-date">Datum</label><input id="s-date" type="date"></div>
       <div><label for="s-typ">Einheit</label>
@@ -325,15 +330,15 @@ svg text{font-family:"IBM Plex Mono",monospace}
 <!-- ================= WOCHE ================= -->
 <section id="woche" hidden>
   <div class="card">
-    <h2>Wochen-Abnahme <span class="nr">18 · Prüfung</span></h2>
+    <h2>Wochen-Abnahme <span class="nr">19 · Prüfung</span></h2>
     <div id="weekly"></div>
   </div>
   <div class="card">
-    <h2>Wenn es klemmt <span class="nr">19 · Mängelbehebung</span></h2>
+    <h2>Wenn es klemmt <span class="nr">20 · Mängelbehebung</span></h2>
     <div id="trouble"></div>
   </div>
   <div class="card">
-    <h2>Daten <span class="nr">20 · Archiv</span></h2>
+    <h2>Daten <span class="nr">21 · Archiv</span></h2>
     <div class="row">
       <div class="fix"><button class="act ghost" id="exp">Export (JSON)</button></div>
       <div class="fix"><button class="act ghost" id="res">Alles zurücksetzen</button></div>
@@ -630,6 +635,15 @@ const BOX_RUNDEN=[
  ['Runde 6 · frei & zügig','Alles was sitzt, sauber und schnell. Tempo halten, Deckung nicht fallen lassen.'],
  ['Ausklang · 5 min','Locker ausschütteln, Schultern und Nacken dehnen, tief durchatmen.']
 ];
+const SEIL_INTERVALLE=[
+ ['Aufwärmen · 3 min','Ohne Seil auf den Fußballen wippen, Handgelenke und Waden lockern. Dann 1 min ganz locker springen.'],
+ ['Runde 1 · Grundsprung','30 s springen / 30 s Pause. Kleine Sprünge, nur wenige Zentimeter, das Seil aus dem Handgelenk drehen.'],
+ ['Runde 2 · Tempo halten','40 s / 20 s. Gleichmäßiger Rhythmus, Blick geradeaus, Ellbogen nah am Körper.'],
+ ['Runde 3 · Wechselschritt','40 s / 20 s. Von Fuß zu Fuß wie leichtes Joggen auf der Stelle – schont die Waden.'],
+ ['Runde 4 · Tempowechsel','20 s zügig / 40 s locker im Wechsel über 3 min. Puls treiben, dann wieder sammeln.'],
+ ['Runde 5 · frei','So lange am Stück, wie es sauber geht. Verhaspelt? Kurz sammeln und weiter, kein Drama.'],
+ ['Ausklang · 3 min','Locker auslaufen, Waden und Achillessehne gründlich dehnen.']
+];
 function renderSport(){
   $('plan-sport').innerHTML=`<table>
     <tr><th>Tag</th><th>Einheit</th></tr>
@@ -651,6 +665,10 @@ function renderSport(){
     '<table><tr><th>Block</th><th>Inhalt</th></tr>'+
     BOX_RUNDEN.map(b=>`<tr><td style="width:34%"><b>${b[0]}</b></td><td class="hint">${b[1]}</td></tr>`).join('')+'</table>'+
     '<div class="warn">Fäuste fest geschlossen, Ellbogen nie ganz durchstrecken. Bei Schulter- oder Handgelenkproblemen erst nur leicht antäuschen. Technik geht immer vor Tempo.</div>';
+  $('seil').innerHTML='<p class="hint" style="margin:0 0 10px">Kurze Intervalle mit klaren Pausen. Dämpfende Schuhe, möglichst auf Matte oder Teppich statt auf Beton. Am Anfang lieber kürzer und öfter.</p>'+
+    '<table><tr><th>Block</th><th>Inhalt</th></tr>'+
+    SEIL_INTERVALLE.map(s=>`<tr><td style="width:34%"><b>${s[0]}</b></td><td class="hint">${s[1]}</td></tr>`).join('')+'</table>'+
+    '<div class="warn">Springen ist stoßintensiv. Bei Knie-, Sprunggelenk- oder Rückenproblemen die Intervalle kurz halten oder auf Rudergerät bzw. Cross-Laufgerät ausweichen.</div>';
   renderSlist();
 }
 function renderSlist(){
