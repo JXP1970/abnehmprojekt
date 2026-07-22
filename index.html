@@ -950,11 +950,11 @@ function renderSport(){
   $('plan-sport').innerHTML=`<table>
     <tr><th>Tag</th><th>Einheit</th></tr>
     <tr><td class="mono">Mo</td><td>Kraft A <span class="tag">Multigerät</span></td></tr>
-    <tr><td class="mono">Di</td><td>Rudergerät 25 min</td></tr>
-    <tr><td class="mono">Mi</td><td>Nordic Walking 45–60 min</td></tr>
-    <tr><td class="mono">Do</td><td>Kraft B <span class="tag">Multigerät</span></td></tr>
-    <tr><td class="mono">Fr</td><td>Boxsack + Sprungseil (Intervalle)</td></tr>
-    <tr><td class="mono">Sa</td><td>lange Einheit: Nordic Walking oder Crosstrainer</td></tr>
+    <tr><td class="mono">Di</td><td>Rudergerät 25 min · Boxsack + Sprungseil</td></tr>
+    <tr><td class="mono">Mi</td><td>Kraft B <span class="tag">Multigerät</span></td></tr>
+    <tr><td class="mono">Do</td><td>frei <span class="tag">Ruhetag</span></td></tr>
+    <tr><td class="mono">Fr</td><td>frei <span class="tag">Ruhetag</span></td></tr>
+    <tr><td class="mono">Sa</td><td>lange Einheit: Nordic Walking / Crosstrainer · nachm. lockerer Walk</td></tr>
     <tr><td class="mono">So</td><td>Ruhe</td></tr></table>`;
   const üb=(arr)=>'<table><tr><th>Übung</th><th style="text-align:right">Umfang</th></tr>'+
     arr.map(u=>`<tr><td>${u[0]}</td><td class="num">${u[1]}</td></tr>`).join('')+'</table>'+
